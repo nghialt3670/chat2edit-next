@@ -1,6 +1,6 @@
 import ChatForm from "@/components/ChatForm";
 import ConvBar from "@/components/ConvBar";
-import ConvContainer from "@/components/ConvContainer";
+import ConvList from "@/components/ConvList";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <div className="flex flex-row size-full">
       <ConvBar>
-        <ConvContainer />
+        <ConvList />
       </ConvBar>
       <div className="flex flex-col size-full">
         {children}

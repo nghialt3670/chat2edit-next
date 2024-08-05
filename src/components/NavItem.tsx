@@ -2,37 +2,38 @@
 
 import { IconButton, Typography } from "@mui/material";
 import { ReactNode } from "react";
-import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 export default function NavItem({
+  currPath,
   path,
   icon,
   text,
-  showText,
-  textWidth,
+  onClick,
 }: {
+  currPath: string;
   path: string;
   icon: ReactNode;
   text: string;
-  showText: boolean;
-  textWidth: number;
+  onClick: (path: string) => void;
 }) {
-  const pathname = usePathname();
-  const isSelected = pathname === path;
+  const isSelected = currPath === path;
   const color = isSelected ? "primary" : "inherit";
 
   return (
-    <Link href={path}>
-      <div className="flex flex-row items-center rounded hover:bg-slate-400">
+    <Link href={path} onClick={() => onClick(path)}>
+      <div className="flex flex-row items-center rounded hover:bg-[#bbbbbb]">
         <IconButton color={color} disableRipple>
           {icon}
         </IconButton>
-        {showText && (
-          <Typography color={color} width={textWidth}>
+        {
+          <Typography
+            color={color}
+            sx={{ overflow: "hidden", width: "inherit" }}
+          >
             {text}
           </Typography>
-        )}
+        }
       </div>
     </Link>
   );

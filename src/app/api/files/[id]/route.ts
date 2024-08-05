@@ -1,16 +1,19 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
-import Grid from "gridfs-stream";
 import connectToDatabase from "@/lib/mongo";
 
-let gfs: Grid.Grid | undefined;
-
-export async function GET(request: Request) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } },
+) {
   try {
-    // Extract file ID from URL parameters
-    const url = new URL(request.url);
-    const fileId = url.searchParams.get("id");
+    await connectToDatabase();
+    const conn = mongoose.connection;
+    const bucket = new mongoose.mongo.GridFSBucket(conn.db, {
+      bucketName: "files",
+    });
 
+    const fileId = params.id;
     if (!fileId) {
       return NextResponse.json(
         { error: "File ID is required" },
@@ -18,35 +21,15 @@ export async function GET(request: Request) {
       );
     }
 
-    // Connect to the database
-    await connectToDatabase();
+    const id = new mongoose.Types.ObjectId(fileId);
+    const fileDoc = await conn.db
+      .collection("files.files")
+      .findOne({ _id: id });
 
-    // Initialize GridFS if it hasn't been already
-    if (!gfs) {
-      const conn = mongoose.connection;
-      gfs = Grid(conn.db, mongoose.mongo);
-      gfs.collection("uploads"); // Ensure this matches your GridFS collection name
-    }
-
-    // Ensure fileId is a valid ObjectId string
-    if (!mongoose.Types.ObjectId.isValid(fileId)) {
-      return NextResponse.json({ error: "Invalid File ID" }, { status: 400 });
-    }
-
-    // Find the file in GridFS
-    const file = await gfs.files.findOne({
-      _id: new mongoose.Types.ObjectId(fileId),
-    });
-    if (!file) {
+    if (!fileDoc)
       return NextResponse.json({ error: "File not found" }, { status: 404 });
-    }
 
-    // Create a read stream for the file
-    const readStream = gfs.createReadStream({
-      _id: fileId,
-    });
-
-    // Convert ReadStream to ReadableStream
+    const readStream = bucket.openDownloadStream(id);
     const readableStream = new ReadableStream({
       start(controller) {
         readStream.on("data", (chunk) => controller.enqueue(chunk));
@@ -55,17 +38,16 @@ export async function GET(request: Request) {
       },
     });
 
-    // Prepare response headers and stream
-    const response = new Response(readableStream, {
+    return new NextResponse(readableStream, {
       headers: {
-        "Content-Type": file.contentType || "application/octet-stream",
+        "Content-Type": fileDoc.contentType || "application/octet-stream",
+        "Content-Disposition": `attachment; filename="${fileDoc.filename || "unknown"}"`,
       },
     });
-
-    return response;
   } catch (error) {
+    console.error("Error fetching file:", error);
     return NextResponse.json(
-      { error: "Failed to fetch the file" },
+      { error: "Internal server error" },
       { status: 500 },
     );
   }

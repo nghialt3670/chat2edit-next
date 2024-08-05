@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import useConversationStore from "@/stores/ConversationStore";
 import MessageNode from "@/components/Message";
@@ -17,13 +17,16 @@ export default function MessageList({
   useEffect(() => {
     if (conversationId) convStore.setId(conversationId);
     if (messages) convStore.setMessages(messages);
-  }, [])
+  }, []);
 
   return (
     <div className="size-full flex flex-col items-center space-y-6">
       {convStore.messages.map((message) => (
         <MessageNode key={message.text} {...message} />
       ))}
+      {convStore.status === "Responding" && (
+        <MessageNode type="Response" isResponding />
+      )}
     </div>
   );
 }

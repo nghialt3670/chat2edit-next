@@ -3,6 +3,7 @@ import { create } from "zustand";
 interface FileStore {
   idToFile: Record<string, File>;
   idToDataURL: Record<string, string>;
+  contains: (fileId: string) => boolean;
   addFile: (fileId: string, file: File) => void;
   addDataURL: (fileId: string, dataURL: string) => void;
   addFiles: (fileIds: string[], files: File[]) => void;
@@ -18,6 +19,12 @@ interface FileStore {
 const useFileStore = create<FileStore>((set, get) => ({
   idToFile: {},
   idToDataURL: {},
+
+  contains: (fileId) => {
+    const state = get();
+    return fileId in state.idToFile;
+  },
+
   addFile: (fileId, file) =>
     set((state) => ({ idToFile: { ...state.idToFile, [fileId]: file } })),
 

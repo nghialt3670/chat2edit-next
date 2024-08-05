@@ -1,19 +1,14 @@
 "use client";
 
-import useNavbarStore from "@/stores/NavbarStore";
-import { CssBaseline, Divider, IconButton } from "@mui/material";
-import {
-  Menu,
-  Home,
-  BotMessageSquare,
-  PencilRuler,
-  PanelRight,
-  PanelLeft,
-  Sidebar,
-} from "lucide-react";
-import NavItem from "./NavItem";
+import { useEffect, useState } from "react";
+
+import { BotMessageSquare, Edit, Home, Menu, Sidebar } from "lucide-react";
+
 import { usePathname } from "next/navigation";
-import useConvBarStore from "@/stores/ConvBarStore";
+import useLayoutStore from "@/stores/LayoutStore";
+import { Divider, IconButton } from "@mui/material";
+
+import NavItem from "./NavItem";
 
 const NAV_ITEM_INFO = [
   {
@@ -28,25 +23,29 @@ const NAV_ITEM_INFO = [
   },
   {
     path: "/edit",
-    icon: <PencilRuler />,
+    icon: <Edit />,
     text: "Edit",
   },
 ];
-const NAV_ITEM_TEXT_WIDTH = 200;
 
 export default function Navbar() {
-  const navbarStore = useNavbarStore();
-  const convBarStore = useConvBarStore();
+  const [currPath, setCurrPath] = useState<string>("/");
   const pathname = usePathname();
-  const widthStyle1 = navbarStore.expanded ? "w-64" : "w-14";
-  const widthStyle2 = navbarStore.expanded ? "w-64" : "w-0";
+  const layoutStore = useLayoutStore();
+  const widthStyle = layoutStore.navbarExpanded ? "w-64" : "w-14";
+
+  useEffect(() => {
+    if (pathname.startsWith("/chat")) setCurrPath("/chat");
+    else if (pathname.startsWith("/edit")) setCurrPath("/edit");
+    else setCurrPath("/");
+  }, [pathname]);
 
   return (
     <div
-      className={`bg-gray-300 h-full ${widthStyle1} p-2 transition-width duration-300 ease-in-out md:relative absolute`}
+      className={`bg-gray-300 h-full ${widthStyle} p-2 transition-width duration-300 ease-in-out md:relative absolute z-10`}
     >
       <div>
-        <IconButton onClick={navbarStore.toggle}>
+        <IconButton onClick={layoutStore.toggleNavbar}>
           <Menu />
         </IconButton>
       </div>
@@ -54,19 +53,19 @@ export default function Navbar() {
       <nav className="flex flex-col w-inherit justify-center w-full">
         {NAV_ITEM_INFO.map(({ path, icon, text }) => (
           <NavItem
+            currPath={currPath}
             key={path}
             path={path}
             icon={icon}
             text={text}
-            showText={navbarStore.expanded}
-            textWidth={NAV_ITEM_TEXT_WIDTH}
+            onClick={setCurrPath}
           />
         ))}
       </nav>
       <Divider sx={{ marginTop: 1, marginBottom: 1 }} />
       <div>
         {pathname.startsWith("/chat") && (
-          <IconButton onClick={convBarStore.toggle}>
+          <IconButton onClick={layoutStore.toggleConvBar}>
             <Sidebar />
           </IconButton>
         )}

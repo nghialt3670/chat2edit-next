@@ -1,6 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { Button, Stack } from "@mui/material";
+import useUserStore from "@/stores/UserStore";
+import { readFileAsDataURL } from "@/utils/client/file";
 import {
   SignedIn,
   SignedOut,
@@ -9,26 +13,34 @@ import {
   UserButton,
   useUser,
 } from "@clerk/nextjs";
-import { BASE_URL } from "@/config/endpoints";
-import { useEffect } from "react";
-import { readFileAsDataURL } from "@/utils/client/file";
-import useUserStore from "@/stores/useUserStore";
 
 export default function AppBar() {
-  const { isSignedIn, user } = useUser();
+  const user = useUser();
   const userStore = useUserStore();
 
   useEffect(() => {
     const updateUserStore = async () => {
-      const avatarURL = user?.imageUrl;
-      if (!avatarURL) return;
+      if (!user.isLoaded) return;
+      if (!user.isSignedIn) {
+        userStore.setUserId(null);
+        userStore.setAvatarDataURL(null);
+      }
+      if (!user.user) return;
+
+      const userId = user.user.id;
+      userStore.setUserId(userId);
+
+      const avatarURL = user.user.imageUrl;
       const response = await fetch(avatarURL);
-      const dataURL = await readFileAsDataURL(await response.blob());
-      console.log(dataURL);
+      const blob = await response.blob();
+      const dataURL = await readFileAsDataURL(blob);
       if (dataURL) userStore.setAvatarDataURL(dataURL.toString());
     };
-    if (isSignedIn) updateUserStore();
-  }, [isSignedIn]);
+    updateUserStore();
+  }, [user.isSignedIn]);
+
+  const base_url = process.env.NEXT_PUBLIC_BASE_URL;
+
   return (
     <header className="h-14 flex flex-row items-center justify-between pl-16 pr-4 md:pl-4">
       <div className="flex flex-row justify-center items-center space-x-2">
@@ -36,16 +48,16 @@ export default function AppBar() {
       </div>
       <SignedOut>
         <Stack direction="row">
-          <SignInButton mode="modal" fallbackRedirectUrl={BASE_URL}>
+          <SignInButton mode="modal" fallbackRedirectUrl={base_url}>
             <Button color="primary">Log In</Button>
           </SignInButton>
-          <SignUpButton mode="modal" fallbackRedirectUrl={BASE_URL}>
+          <SignUpButton mode="modal" fallbackRedirectUrl={base_url}>
             <Button color="inherit">Sign Up</Button>
           </SignUpButton>
         </Stack>
       </SignedOut>
       <SignedIn>
-        <UserButton afterSignOutUrl={BASE_URL} />
+        <UserButton afterSignOutUrl={base_url} />
       </SignedIn>
     </header>
   );

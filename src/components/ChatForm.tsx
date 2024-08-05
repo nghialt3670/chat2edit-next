@@ -1,67 +1,99 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
-import { IconButton } from "@mui/material";
-import { Send, Upload } from "lucide-react";
-import FormFile from "./FormFile";
-import useChatFormStore from "@/stores/ChatFormStore";
-import useFileStore from "@/stores/FileStore";
+
 import mongoose from "mongoose";
-import useConversationStore from "@/stores/ConversationStore";
-import { sendMessage } from "@/actions/sendMessage";
+import { Send, Upload } from "lucide-react";
+
 import Message from "@/types/Message";
+import { IconButton } from "@mui/material";
+import useFileStore from "@/stores/FileStore";
+import { sendMessage } from "@/actions/sendMessage";
+import useChatFormStore from "@/stores/ChatFormStore";
+import { RESPONDING_MESSAGE_DELAY_MS } from "@/config/timer";
+import useConversationStore from "@/stores/ConversationStore";
+
+import FormFile from "./FormFile";
+import { initConversation } from "@/actions/initConversation";
+import { useRouter } from "next/navigation";
 
 export default function ChatForm() {
   const [text, setText] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textInputRef = useRef<HTMLInputElement>(null);
-  const ref = useRef<HTMLFormElement>(null);
-  const chatFormStore = useChatFormStore();
-  const fileStore = useFileStore();
+  const formRef = useRef<HTMLFormElement>(null);
   const convStore = useConversationStore();
+  const formStore = useChatFormStore();
+  const fileStore = useFileStore();
+  const router = useRouter();
 
   const handleFileInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files) return;
     const files = Array.from(event.target.files);
     const fileIds = files.map(() => new mongoose.Types.ObjectId().toString());
     fileStore.addFiles(fileIds, files);
-    chatFormStore.setFileIds(fileIds);
+    formStore.setFileIds(fileIds);
     textInputRef.current?.focus();
     event.target.value = "";
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const files = fileStore.getFiles(chatFormStore.fileIds) as File[];
 
+    // Initialize a conversation on the server
+    // and redirect to the route base on the id
+    let convId = convStore.id;
+    if (!convId) {
+      convId = await initConversation();
+      router.push(`/chat/conversations/${convId}`);
+      convStore.setId(convId);
+    }
+
+    // Create form data for submitting
     const formData = new FormData();
-    if (convStore.id) formData.append("conversationId", convStore.id)
-    formData.append("text", text);
-    files.forEach((file) => formData.append("files", file));
+    const files = fileStore.getFiles(formStore.fileIds) as File[];
+    formData.set("text", text);
+    files.forEach((file) => formData.set("files", file));
+    formData.set("conversationId", convId!);
+    console.log(convId)
 
-    chatFormStore.setFileIds([]);
+    // Reset input states
+    formStore.setFileIds([]);
     setText("");
+
+    // Update conversation states
     const message: Message = {
       id: new mongoose.Types.ObjectId().toString(),
       type: "Request",
       text: text,
-      fileIds: chatFormStore.fileIds,
+      fileIds: formStore.fileIds,
     };
     convStore.addMessage(message);
-    const resMessage = await sendMessage(formData)
-    if (!resMessage) throw new Error("Error sending message")
-    convStore.addMessage(resMessage);
+    setTimeout(
+      () => convStore.setStatus("Responding"),
+      RESPONDING_MESSAGE_DELAY_MS,
+    );
+
+    // Send message to server
+    try {
+      const resMessage = await sendMessage(formData);
+      // Update conversation states
+      convStore.setStatus("Idle");
+      convStore.addMessage(resMessage);
+    } catch (error) {
+      throw new Error("Error sending message");
+    }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
       className="absolute bottom-8 rounded-3xl bg-gray-300 md:w-1/2 w-5/6"
-      ref={ref}
+      ref={formRef}
     >
-      {chatFormStore.fileIds.length !== 0 && (
-        <div className="p-4">
-          {chatFormStore.fileIds.map((fileId) => (
+      {formStore.fileIds.length !== 0 && (
+        <div className="p-4 flex flex-wrap gap-6 max-h-64 overflow-y-scroll scroll-m-11 justify-between after:flex-auto">
+          {formStore.fileIds.map((fileId) => (
             <FormFile key={fileId} fileId={fileId} />
           ))}
         </div>
@@ -82,8 +114,8 @@ export default function ChatForm() {
           type="text"
           spellCheck="false"
           required
-          ref={textInputRef}
           value={text}
+          ref={textInputRef}
           onChange={(e) => setText(e.target.value)}
         />
         <input type="submit" hidden />

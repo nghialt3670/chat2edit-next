@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import { CircleUserRound } from "lucide-react";
+
+import useUserStore from "@/stores/UserStore";
+
 import Logo from "../../public/logo.svg";
-import useUserStore from "@/stores/useUserStore";
 
 export default function MessageAvatar({
   type,
@@ -13,7 +15,11 @@ export default function MessageAvatar({
   const src = type === "Request" ? userStore.avatarDataURL : Logo.src;
   return (
     <div>
-      <img className="size-7 rounded-full" src={src} />
+      {src ? (
+        <img className="size-7 rounded-full" src={src} />
+      ) : (
+        <CircleUserRound className="size-7" />
+      )}
     </div>
   );
 }

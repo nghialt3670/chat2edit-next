@@ -8,9 +8,9 @@ import React, { useEffect } from "react";
 export default function ChatPage() {
   const convStore = useConversationStore();
   useEffect(() => {
-    convStore.setId(null)
-    convStore.setMessages([])
-  }, [])
+    convStore.setId(null);
+    convStore.setMessages([]);
+  }, []);
   return (
     <div>
       <MessageList />

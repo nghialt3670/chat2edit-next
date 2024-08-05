@@ -1,13 +1,13 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
-interface IMessage extends Document {
+interface ITempMessage extends Document {
   conversationId: mongoose.Schema.Types.ObjectId;
   text: string;
   fileIds: mongoose.Schema.Types.ObjectId[];
   createdAt: number;
 }
 
-const MessageSchema: Schema<IMessage> = new Schema({
+const TempMessageSchema: Schema<ITempMessage> = new Schema({
   conversationId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Conversation",
@@ -19,10 +19,16 @@ const MessageSchema: Schema<IMessage> = new Schema({
     default: [],
     required: true,
   },
-  createdAt: { type: Number, default: Date.now, required: true },
+  createdAt: {
+    type: Number,
+    default: Date.now,
+    required: true,
+    expires: process.env.TEMP_CONVERSATION_EXPIRE_TIME,
+  },
 });
 
-const Message: Model<IMessage> =
-  mongoose.models.Message || mongoose.model<IMessage>("Message", MessageSchema);
+const TempMessage: Model<ITempMessage> =
+  mongoose.models.TempMessage ||
+  mongoose.model<ITempMessage>("TempMessage", TempMessageSchema);
 
-export default Message;
+export default TempMessage;

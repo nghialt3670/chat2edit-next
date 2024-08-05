@@ -1,60 +1,32 @@
-"use client";
-
-import useFileStore from "@/stores/FileStore";
-import { readFileAsDataURL } from "@/utils/client/file";
-import React, { useEffect, useState } from "react";
 import { IconButton } from "@mui/material";
-import { Delete, XCircle } from "lucide-react";
+import { XCircle } from "lucide-react";
+import React from "react";
+import FilePreview from "./FilePreview";
 import useChatFormStore from "@/stores/ChatFormStore";
+import useFileStore from "@/stores/FileStore";
 
 export default function FormFile({ fileId }: { fileId: string }) {
-  const [showImage, setShowImage] = useState<boolean>(false);
-  const [imageDataURL, setImageDataURL] = useState<string>();
-  const fileStore = useFileStore();
   const formStore = useChatFormStore();
+  const fileStore = useFileStore();
 
-  useEffect(() => {
-    const file = fileStore.getFile(fileId);
-    if (!file) throw new Error();
-
-    const readAndSetFile = async () => {
-      let dataURL = fileStore.getDataURL(fileId);
-      if (!dataURL) {
-        let newDataURL = await readFileAsDataURL(file);
-        if (!newDataURL) {
-          alert(`Error reading file: ${file.name}`);
-          handleRemoveFile();
-          return;
-        }
-        newDataURL = newDataURL.toString();
-        setImageDataURL(newDataURL);
-        fileStore.addDataURL(fileId, newDataURL);
-      }
-    };
-
-    if (file.type.startsWith("image/")) {
-      setShowImage(true);
-      readAndSetFile();
-    }
-  }, [fileId]);
-
-  const handleRemoveFile = () => {
-    fileStore.removeFile(fileId);
+  const handleRemoveClick = () => {
     formStore.removeFile(fileId);
+    fileStore.removeFile(fileId);
   };
 
   return (
-    <div className="relative size-24 rounded-2xl bg-slate-400 overflow-hidden">
-      <div className="h-1/3">
-        <div className="absolute top-0 right-0">
-          <IconButton size="small" onClick={handleRemoveFile}>
-            <XCircle size={20} />
-          </IconButton>
-        </div>
+    <div className="relative size-fit rounded-xl overflow-hidden">
+      <div className="absolute right-0 top-0 z-10">
+        <IconButton onClick={handleRemoveClick}>
+          <XCircle size={20} />
+        </IconButton>
       </div>
-      <div className="h-2/3">
-        {showImage ? <img src={imageDataURL} /> : <div>hihi</div>}
-      </div>
+      <FilePreview
+        fileId={fileId}
+        loadingSize={20}
+        imageSize={20}
+        opacity={60}
+      />
     </div>
   );
 }

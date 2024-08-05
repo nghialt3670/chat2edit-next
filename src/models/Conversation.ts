@@ -1,6 +1,6 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
-interface IConversation extends Document {
+export interface IConversation extends Document {
   title: string;
   userId: mongoose.Schema.Types.ObjectId;
   createdAt: number;
