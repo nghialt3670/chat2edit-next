@@ -24,6 +24,7 @@ export default function AppBar() {
       if (!user.isSignedIn) {
         userStore.setUserId(null);
         userStore.setAvatarDataURL(null);
+        return;
       }
       if (!user.user) return;
 

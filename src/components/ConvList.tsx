@@ -1,11 +1,12 @@
 import { format } from "date-fns";
 
-import Link from "next/link";
 import User from "@/models/User";
 import { Divider } from "@mui/material";
 import connectToDatabase from "@/lib/mongo";
 import { auth } from "@clerk/nextjs/server";
 import Conversation from "@/models/Conversation";
+
+import ConvItem from "./ConvItem";
 
 async function getGroupedConversations() {
   await connectToDatabase();
@@ -35,7 +36,7 @@ export default async function ConvList() {
   const groupedConversations = await getGroupedConversations();
 
   return (
-    <div className="flex flex-col w-inherit">
+    <div className="flex flex-col w-inherit overflow-x-hidden overflow-y-scrol h-full">
       {Object.keys(groupedConversations).map((date) => (
         <div key={date}>
           <Divider
@@ -52,11 +53,7 @@ export default async function ConvList() {
             </p>
           </Divider>
           {groupedConversations[date].map((conv) => (
-            <Link key={conv.id} href={`/chat/conversations/${conv.id}`}>
-              <div className="flex h-12 items-center opacity-80 hover:bg-[#7094a8] text-nowrap overflow-hidden">
-                <span className="truncate p-2">{conv.title}</span>
-              </div>
-            </Link>
+            <ConvItem key={conv.id} convId={conv.id} title={conv.title} />
           ))}
         </div>
       ))}

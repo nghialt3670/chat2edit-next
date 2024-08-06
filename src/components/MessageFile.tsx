@@ -1,15 +1,13 @@
 "use client";
 
-import useFileStore from "@/stores/FileStore";
-import { readFileAsDataURL } from "@/utils/client/file";
-import React, { useEffect, useState } from "react";
-import { CircularProgress, IconButton } from "@mui/material";
-import { Download, Edit, Reply, XCircle } from "lucide-react";
-import useChatFormStore from "@/stores/ChatFormStore";
-import { createCanvasFromFile } from "@/utils/client/fabric";
-import Link from "next/link";
-import FilePreview from "./FilePreview";
+import { Download, Edit, Reply } from "lucide-react";
+
+import { IconButton } from "@mui/material";
 import { useRouter } from "next/navigation";
+import useFileStore from "@/stores/FileStore";
+import useChatFormStore from "@/stores/ChatFormStore";
+
+import FilePreview from "./FilePreview";
 
 export default function MessageFile({ fileId }: { fileId: string }) {
   const formStore = useChatFormStore();

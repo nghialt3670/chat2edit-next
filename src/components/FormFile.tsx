@@ -1,9 +1,10 @@
-import { IconButton } from "@mui/material";
 import { XCircle } from "lucide-react";
-import React from "react";
-import FilePreview from "./FilePreview";
-import useChatFormStore from "@/stores/ChatFormStore";
+
+import { IconButton } from "@mui/material";
 import useFileStore from "@/stores/FileStore";
+import useChatFormStore from "@/stores/ChatFormStore";
+
+import FilePreview from "./FilePreview";
 
 export default function FormFile({ fileId }: { fileId: string }) {
   const formStore = useChatFormStore();
@@ -25,7 +26,7 @@ export default function FormFile({ fileId }: { fileId: string }) {
         fileId={fileId}
         loadingSize={20}
         imageSize={20}
-        opacity={60}
+        opacity={20}
       />
     </div>
   );

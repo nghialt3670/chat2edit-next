@@ -1,21 +1,23 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 
 import mongoose from "mongoose";
 import { Send, Upload } from "lucide-react";
 
-import Message from "@/types/Message";
+import { useUser } from "@clerk/nextjs";
 import { IconButton } from "@mui/material";
+import { useRouter } from "next/navigation";
 import useFileStore from "@/stores/FileStore";
 import { sendMessage } from "@/actions/sendMessage";
+import { postMessage } from "@/actions/postMessage";
 import useChatFormStore from "@/stores/ChatFormStore";
+import { postTempMessage } from "@/actions/postTempMessage";
+import { sendTempMessage } from "@/actions/sendTempMessage";
 import { RESPONDING_MESSAGE_DELAY_MS } from "@/config/timer";
 import useConversationStore from "@/stores/ConversationStore";
 
 import FormFile from "./FormFile";
-import { initConversation } from "@/actions/initConversation";
-import { useRouter } from "next/navigation";
 
 export default function ChatForm() {
   const [text, setText] = useState<string>("");
@@ -26,6 +28,35 @@ export default function ChatForm() {
   const formStore = useChatFormStore();
   const fileStore = useFileStore();
   const router = useRouter();
+  const user = useUser();
+
+  useEffect(() => {
+    const updateConversation = async () => {
+      if (convStore.messages.length % 2 === 0) return;
+      setTimeout(
+        () => convStore.setStatus("Responding"),
+        RESPONDING_MESSAGE_DELAY_MS,
+      );
+
+      const reqMessage = convStore.messages[convStore.messages.length - 1];
+      const formData = new FormData();
+      formData.set("conversationId", convStore.id!);
+      formData.set("text", reqMessage.text);
+      reqMessage.fileIds.forEach((fileId) => formData.set("fileIds", fileId));
+
+      try {
+        const resMessage = user.isSignedIn
+          ? await sendMessage(formData)
+          : await sendTempMessage(formData);
+        convStore.setStatus("Idle");
+        convStore.addMessage(resMessage);
+        convStore.setTitle(resMessage.text);
+      } catch (error) {
+        throw new Error("Error Requesting message");
+      }
+    };
+    updateConversation();
+  }, [convStore.messages]);
 
   const handleFileInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files) return;
@@ -40,49 +71,39 @@ export default function ChatForm() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // Initialize a conversation on the server
-    // and redirect to the route base on the id
-    let convId = convStore.id;
-    if (!convId) {
-      convId = await initConversation();
-      router.push(`/chat/conversations/${convId}`);
-      convStore.setId(convId);
-    }
-
     // Create form data for submitting
     const formData = new FormData();
     const files = fileStore.getFiles(formStore.fileIds) as File[];
+    if (convStore.id) formData.set("conversationId", convStore.id);
     formData.set("text", text);
     files.forEach((file) => formData.set("files", file));
-    formData.set("conversationId", convId!);
-    console.log(convId)
+
+    // Post the message base on whether the user is signed in
+    // convStore.setStatus("Requesting");
+    const { conversationId, fileIds } = user.isSignedIn
+      ? await postMessage(formData)
+      : await postTempMessage(formData);
+
+    // Update client file ids to sync with server
+    fileStore.updateIds(formStore.fileIds, fileIds);
+
+    // Set the conversation id and navigate if
+    // it is the first message
+    if (!convStore.id) {
+      convStore.setId(conversationId);
+      router.push(`/chat/conversations/${conversationId}`);
+    } else {
+      convStore.addMessage({
+        id: new mongoose.Types.ObjectId().toString(),
+        type: "Request",
+        text,
+        fileIds,
+      });
+    }
 
     // Reset input states
     formStore.setFileIds([]);
     setText("");
-
-    // Update conversation states
-    const message: Message = {
-      id: new mongoose.Types.ObjectId().toString(),
-      type: "Request",
-      text: text,
-      fileIds: formStore.fileIds,
-    };
-    convStore.addMessage(message);
-    setTimeout(
-      () => convStore.setStatus("Responding"),
-      RESPONDING_MESSAGE_DELAY_MS,
-    );
-
-    // Send message to server
-    try {
-      const resMessage = await sendMessage(formData);
-      // Update conversation states
-      convStore.setStatus("Idle");
-      convStore.addMessage(resMessage);
-    } catch (error) {
-      throw new Error("Error sending message");
-    }
   };
 
   return (

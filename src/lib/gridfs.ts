@@ -2,8 +2,11 @@ import mongoose from "mongoose";
 
 export async function uploadFilesToGridFS(
   files: File[],
-  bucket: mongoose.mongo.GridFSBucket,
+  connection: mongoose.Connection,
+  bucketName: string,
 ): Promise<mongoose.Types.ObjectId[]> {
+  const bucket = new mongoose.mongo.GridFSBucket(connection.db, { bucketName });
+
   return await Promise.all(
     files.map(async (file) => {
       const arrayBuffer = await file.arrayBuffer();
@@ -18,6 +21,58 @@ export async function uploadFilesToGridFS(
         uploadStream.on("finish", () => resolve(uploadStream.id));
         uploadStream.on("error", (error) => reject(error));
       });
+    }),
+  );
+}
+
+export async function downloadFilesFromGridFS(
+  fileIds: mongoose.Types.ObjectId[],
+  connection: mongoose.Connection,
+  bucketName: string,
+): Promise<(File | null)[]> {
+  const collection = connection.db.collection(`${bucketName}.files`);
+  const bucket = new mongoose.mongo.GridFSBucket(connection.db, { bucketName });
+
+  return await Promise.all(
+    fileIds.map(async (fileId) => {
+      const fileDoc = await collection.findOne({ _id: fileId });
+      if (!fileDoc) return null;
+
+      console.log(fileDoc);
+
+      const readStream = bucket.openDownloadStream(fileId);
+      const chunks: Buffer[] = [];
+
+      return new Promise<File>((resolve, reject) => {
+        readStream.on("data", (chunk) => chunks.push(chunk));
+        readStream.on("end", () => {
+          const file = new File(
+            [Buffer.concat(chunks)],
+            fileDoc.filename || "unknown",
+            {
+              type: fileDoc.contentType || "application/octet-stream",
+            },
+          );
+          resolve(file);
+        });
+        readStream.on("error", reject);
+      });
+    }),
+  );
+}
+
+export async function deleteFilesFromGridFS(
+  fileIds: mongoose.Types.ObjectId[],
+  connection: mongoose.Connection,
+  bucketName: string,
+): Promise<void> {
+  const fileCollection = connection.db.collection(`${bucketName}.files`);
+  const chunkCollection = connection.db.collection(`${bucketName}.chunks`);
+
+  await Promise.all(
+    fileIds.map(async (fileId) => {
+      await fileCollection.deleteOne({ _id: fileId });
+      await chunkCollection.deleteMany({ files_id: fileId });
     }),
   );
 }

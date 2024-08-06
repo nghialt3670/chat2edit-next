@@ -3,10 +3,12 @@ import { create } from "zustand";
 
 interface ConversationStore {
   id: string | null;
-  status: "Idle" | "Responding";
+  status: "Idle" | "Requesting" | "Responding";
+  title: string;
   messages: Message[];
   setId: (id: string | null) => void;
-  setStatus: (status: "Idle" | "Responding") => void;
+  setStatus: (status: "Idle" | "Requesting" | "Responding") => void;
+  setTitle: (title: string) => void;
   setMessages: (messages: Message[]) => void;
   addMessage: (message: Message) => void;
 }
@@ -14,9 +16,11 @@ interface ConversationStore {
 const useConversationStore = create<ConversationStore>((set) => ({
   id: null,
   status: "Idle",
+  title: "New Conversation",
   messages: [],
   setId: (id) => set({ id: id }),
   setStatus: (status) => set({ status: status }),
+  setTitle: (title) => set({ title }),
   setMessages: (messages) => set({ messages: messages }),
   addMessage: (message) =>
     set((state) => ({ messages: [...state.messages, message] })),

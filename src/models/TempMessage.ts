@@ -7,25 +7,28 @@ interface ITempMessage extends Document {
   createdAt: number;
 }
 
-const TempMessageSchema: Schema<ITempMessage> = new Schema({
-  conversationId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Conversation",
-    required: true,
+const TempMessageSchema: Schema<ITempMessage> = new Schema(
+  {
+    conversationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Conversation",
+      required: true,
+    },
+    text: { type: String, required: true },
+    fileIds: {
+      type: [mongoose.Schema.Types.ObjectId],
+      default: [],
+      required: true,
+    },
+    createdAt: {
+      type: Number,
+      default: Date.now,
+      required: true,
+      expires: process.env.TEMP_CONVERSATION_EXPIRE_SECONDS,
+    },
   },
-  text: { type: String, required: true },
-  fileIds: {
-    type: [mongoose.Schema.Types.ObjectId],
-    default: [],
-    required: true,
-  },
-  createdAt: {
-    type: Number,
-    default: Date.now,
-    required: true,
-    expires: process.env.TEMP_CONVERSATION_EXPIRE_TIME,
-  },
-});
+  { collection: "temp-messages" },
+);
 
 const TempMessage: Model<ITempMessage> =
   mongoose.models.TempMessage ||

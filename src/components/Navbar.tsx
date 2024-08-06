@@ -2,8 +2,16 @@
 
 import { useEffect, useState } from "react";
 
-import { BotMessageSquare, Edit, Home, Menu, Sidebar } from "lucide-react";
+import {
+  BotMessageSquare,
+  CirclePlus,
+  Edit,
+  Home,
+  Menu,
+  Sidebar,
+} from "lucide-react";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import useLayoutStore from "@/stores/LayoutStore";
 import { Divider, IconButton } from "@mui/material";
@@ -50,7 +58,7 @@ export default function Navbar() {
         </IconButton>
       </div>
       <Divider sx={{ marginTop: 1, marginBottom: 1 }} />
-      <nav className="flex flex-col w-inherit justify-center w-full">
+      <nav className="flex flex-col w-inherit justify-center">
         {NAV_ITEM_INFO.map(({ path, icon, text }) => (
           <NavItem
             currPath={currPath}
@@ -63,11 +71,24 @@ export default function Navbar() {
         ))}
       </nav>
       <Divider sx={{ marginTop: 1, marginBottom: 1 }} />
-      <div>
-        {pathname.startsWith("/chat") && (
-          <IconButton onClick={layoutStore.toggleConvBar}>
-            <Sidebar />
-          </IconButton>
+      <div className="w-inherit overflow-hidden">
+        {currPath.startsWith("/chat") && (
+          <div>
+            <div className="flex flex-row items-center w-inherit">
+              <IconButton onClick={layoutStore.toggleConvBar}>
+                <Sidebar />
+              </IconButton>
+              <span className="w-inherit text-nowrap">Chat History</span>
+            </div>
+            <div className="flex flex-row items-center w-inherit">
+              <Link href="/chat">
+                <IconButton>
+                  <CirclePlus />
+                </IconButton>
+              </Link>
+              <div className="w-inherit text-nowrap">New Conversation</div>
+            </div>
+          </div>
         )}
       </div>
     </div>

@@ -1,12 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
 import MessageAvatar from "./MessageAvatar";
 import { Skeleton } from "@mui/material";
-import { getFiles } from "@/actions/getFiles";
-import useFileStore from "@/stores/FileStore";
-import FilePreview from "./FilePreview";
-import { getFilenameFromContentDisposition } from "@/utils/client/file";
 import MessageFile from "./MessageFile";
 
 export default function Message({

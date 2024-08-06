@@ -58,7 +58,7 @@ export default function FilePreview({
         return;
       }
 
-      const file = new File([blob], filename);
+      const file = new File([blob], filename, { type: blob.type });
       setFile(file);
     };
     const file = fileStore.getFile(fileId);

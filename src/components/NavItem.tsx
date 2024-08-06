@@ -1,8 +1,9 @@
 "use client";
 
-import { IconButton, Typography } from "@mui/material";
 import { ReactNode } from "react";
+
 import Link from "next/link";
+import { IconButton, Typography } from "@mui/material";
 
 export default function NavItem({
   currPath,

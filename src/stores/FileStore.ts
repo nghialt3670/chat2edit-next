@@ -14,6 +14,7 @@ interface FileStore {
   getDataURLs: (fileIds: string[]) => (string | undefined)[];
   removeFile: (fileId: string) => void;
   removeFiles: (fileIds: string[]) => void;
+  updateIds: (oldIds: string[], newIds: string[]) => void;
 }
 
 const useFileStore = create<FileStore>((set, get) => ({
@@ -77,6 +78,39 @@ const useFileStore = create<FileStore>((set, get) => ({
         delete newFileState[fileId];
       });
       return { idToFile: newFileState };
+    });
+  },
+
+  updateIds: (oldIds, newIds) => {
+    set((state) => {
+      // Ensure oldIds and newIds have the same length
+      if (oldIds.length !== newIds.length) {
+        throw new Error("oldIds and newIds must have the same length");
+      }
+
+      // Create mappings for new files and data URLs
+      const newIdToFile = { ...state.idToFile };
+      const newIdToDataURL = { ...state.idToDataURL };
+
+      // Update file mappings
+      oldIds.forEach((oldId, index) => {
+        const newId = newIds[index];
+        if (newId in newIdToFile) {
+          newIdToFile[newId] = newIdToFile[oldId];
+          delete newIdToFile[oldId];
+        }
+      });
+
+      // Update data URL mappings
+      oldIds.forEach((oldId, index) => {
+        const newId = newIds[index];
+        if (newId in newIdToDataURL) {
+          newIdToDataURL[newId] = newIdToDataURL[oldId];
+          delete newIdToDataURL[oldId];
+        }
+      });
+
+      return { idToFile: newIdToFile, idToDataURL: newIdToDataURL };
     });
   },
 }));
