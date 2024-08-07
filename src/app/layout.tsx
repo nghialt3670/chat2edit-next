@@ -24,9 +24,9 @@ export default function RootLayout({
         <body className={inter.className}>
           <div className="md:absolute relative w-14 h-full bg-slate-600"></div>
           <Navbar />
-          <div className="flex flex-col h-full w-full">
+          <div className="flex flex-col size-full">
             <AppBar />
-            <main className="h-full flex flex-row">{children}</main>
+            <main className="flex flex-row h-[calc(100%-5rem)]">{children}</main>
             <Footer />
           </div>
         </body>
