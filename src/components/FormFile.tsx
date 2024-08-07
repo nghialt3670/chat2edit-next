@@ -26,7 +26,7 @@ export default function FormFile({ fileId }: { fileId: string }) {
         fileId={fileId}
         loadingSize={20}
         imageSize={20}
-        opacity={20}
+        opacity={60}
       />
     </div>
   );

@@ -43,7 +43,7 @@ export default function AppBar() {
   const base_url = process.env.NEXT_PUBLIC_BASE_URL;
 
   return (
-    <header className="h-14 flex flex-row items-center justify-between pl-16 pr-4 md:pl-4">
+    <header className="h-14 flex flex-row items-center justify-between pr-4 pl-6">
       <div className="flex flex-row justify-center items-center space-x-2">
         <h1 className="font-bold text-xl">Chat2Edit</h1>
       </div>

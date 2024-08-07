@@ -18,7 +18,7 @@ export default function Message({
   isError?: boolean;
 }) {
   return (
-    <div className="flex flex-row md:w-1/2 w-5/6">
+    <div className="flex flex-row md:w-1/2 w-5/6 mb-6">
       <div className="size-10">
         <MessageAvatar type={type} />
       </div>
@@ -31,9 +31,7 @@ export default function Message({
           </>
         ) : (
           <>
-            <div className="">
-              <p className="whitespace-pre-wrap">{text}</p>
-            </div>
+            <p className="whitespace-pre-wrap">{text}</p>
             <div>
               {fileIds!.map((fileId) => (
                 <MessageFile key={fileId} fileId={fileId} />

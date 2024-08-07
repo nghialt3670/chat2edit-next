@@ -13,13 +13,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex flex-row size-full">
-      <ConvBar>
-        <ConvList />
-      </ConvBar>
+    <div className="relative flex flex-row size-full">
       <div className="flex flex-col size-full">
         {children}
-        <div className="relative flex justify-center items-center h-20 mt-auto">
+        <div className="flex justify-center items-center h-20 mt-auto">
           <ChatForm />
         </div>
       </div>

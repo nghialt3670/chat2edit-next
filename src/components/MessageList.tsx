@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import Message from "@/types/Message";
 import MessageNode from "@/components/Message";
@@ -13,21 +13,25 @@ export default function MessageList({
   conversationId?: string;
   messages?: Message[];
 }) {
+  const ref = useRef<HTMLDivElement>(null);
   const convStore = useConversationStore();
 
   useEffect(() => {
     if (conversationId) convStore.setId(conversationId);
     if (messages) convStore.setMessages(messages);
-  }, []);
+    if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;
+  }, [messages]);
+
+  if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;
 
   return (
-    <div className="size-full flex flex-col items-center space-y-6 overflow-y-scroll">
+    <div
+      className="size-full flex flex-col items-center overflow-y-scroll flex-1"
+      ref={ref}
+    >
       {convStore.messages.map((message) => (
-        <MessageNode key={message.text} {...message} />
+        <MessageNode key={message.id} {...message} />
       ))}
-      {convStore.status === "Requesting" && (
-        <MessageNode type="Request" isResponding />
-      )}
       {convStore.status === "Responding" && (
         <MessageNode type="Response" isResponding />
       )}

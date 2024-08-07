@@ -10,7 +10,7 @@ export default function ConvBar({ children }: { children: ReactNode }) {
 
   return (
     <div
-      className={`h-[calc(100%-5rem)] ${widthStyle} bg-slate-400 transition-width duration-300 md:relative absolute z-10`}
+      className={`h-full ${widthStyle} bg-slate-500 transition-width md:relative md:rounded-none rounded-tl-xl rounded-bl-xl right-0 absolute duration-200 z-10`}
     >
       {children}
     </div>

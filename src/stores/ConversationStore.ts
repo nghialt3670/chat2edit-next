@@ -3,11 +3,11 @@ import { create } from "zustand";
 
 interface ConversationStore {
   id: string | null;
-  status: "Idle" | "Requesting" | "Responding";
+  status: "Idle" | "Requesting" | "Responding" | "Error";
   title: string;
   messages: Message[];
   setId: (id: string | null) => void;
-  setStatus: (status: "Idle" | "Requesting" | "Responding") => void;
+  setStatus: (status: "Idle" | "Requesting" | "Responding" | "Error") => void;
   setTitle: (title: string) => void;
   setMessages: (messages: Message[]) => void;
   addMessage: (message: Message) => void;

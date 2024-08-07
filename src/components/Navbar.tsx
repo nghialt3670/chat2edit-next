@@ -14,9 +14,10 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import useLayoutStore from "@/stores/LayoutStore";
-import { Divider, IconButton } from "@mui/material";
+import { Divider, IconButton, Typography } from "@mui/material";
 
 import NavItem from "./NavItem";
+import ConvList from "./ConvList";
 
 const NAV_ITEM_INFO = [
   {
@@ -40,7 +41,7 @@ export default function Navbar() {
   const [currPath, setCurrPath] = useState<string>("/");
   const pathname = usePathname();
   const layoutStore = useLayoutStore();
-  const widthStyle = layoutStore.navbarExpanded ? "w-64" : "w-14";
+  const widthStyle = layoutStore.navbarExpanded ? "w-72" : "w-14";
 
   useEffect(() => {
     if (pathname.startsWith("/chat")) setCurrPath("/chat");
@@ -50,7 +51,7 @@ export default function Navbar() {
 
   return (
     <div
-      className={`bg-gray-300 h-full ${widthStyle} p-2 transition-width duration-300 ease-in-out md:relative absolute z-10`}
+      className={`bg-slate-400 h-full ${widthStyle} p-2 transition-width duration-200 ease-in-out md:relative absolute z-50`}
     >
       <div>
         <IconButton onClick={layoutStore.toggleNavbar}>
@@ -71,23 +72,20 @@ export default function Navbar() {
         ))}
       </nav>
       <Divider sx={{ marginTop: 1, marginBottom: 1 }} />
-      <div className="w-inherit overflow-hidden">
+      <div className="w-inherit overflow-hidden space-y-4">
         {currPath.startsWith("/chat") && (
           <div>
-            <div className="flex flex-row items-center w-inherit">
-              <IconButton onClick={layoutStore.toggleConvBar}>
-                <Sidebar />
-              </IconButton>
-              <span className="w-inherit text-nowrap">Chat History</span>
-            </div>
-            <div className="flex flex-row items-center w-inherit">
               <Link href="/chat">
-                <IconButton>
-                  <CirclePlus />
-                </IconButton>
+                <div className="flex flex-row items-center rounded hover:backdrop-brightness-95">
+                  <IconButton disableRipple>
+                    <CirclePlus />
+                  </IconButton>
+                  <Typography sx={{ overflow: "hidden", width: "inherit", textWrap: "nowrap" }}>
+                    New Conversation
+                  </Typography>
+                </div>
               </Link>
-              <div className="w-inherit text-nowrap">New Conversation</div>
-            </div>
+            <ConvList />
           </div>
         )}
       </div>

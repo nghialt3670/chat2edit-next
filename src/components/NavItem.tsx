@@ -23,7 +23,7 @@ export default function NavItem({
 
   return (
     <Link href={path} onClick={() => onClick(path)}>
-      <div className="flex flex-row items-center rounded hover:bg-[#bbbbbb]">
+      <div className="flex flex-row items-center rounded hover:backdrop-brightness-95">
         <IconButton color={color} disableRipple>
           {icon}
         </IconButton>

@@ -33,6 +33,7 @@ export default function ChatForm() {
   useEffect(() => {
     const updateConversation = async () => {
       if (convStore.messages.length % 2 === 0) return;
+      if (convStore.status !== "Requesting") return;
       setTimeout(
         () => convStore.setStatus("Responding"),
         RESPONDING_MESSAGE_DELAY_MS,
@@ -52,7 +53,7 @@ export default function ChatForm() {
         convStore.addMessage(resMessage);
         convStore.setTitle(resMessage.text);
       } catch (error) {
-        throw new Error("Error Requesting message");
+        convStore.setStatus("Error");
       }
     };
     updateConversation();
@@ -104,16 +105,18 @@ export default function ChatForm() {
     // Reset input states
     formStore.setFileIds([]);
     setText("");
+
+    convStore.setStatus("Requesting");
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="absolute bottom-8 rounded-3xl bg-gray-300 md:w-1/2 w-5/6"
+      className="absolute bottom-8 rounded-3xl bg-white md:w-1/2 w-5/6 border-gray-400 border-2"
       ref={formRef}
     >
       {formStore.fileIds.length !== 0 && (
-        <div className="p-4 flex flex-wrap gap-6 max-h-64 overflow-y-scroll scroll-m-11 justify-between after:flex-auto">
+        <div className="m-5 mb-0 flex flex-wrap gap-6 max-h-64 overflow-y-scroll scroll-m-11 justify-between after:flex-auto">
           {formStore.fileIds.map((fileId) => (
             <FormFile key={fileId} fileId={fileId} />
           ))}
@@ -140,7 +143,11 @@ export default function ChatForm() {
           onChange={(e) => setText(e.target.value)}
         />
         <input type="submit" hidden />
-        <IconButton size="large" type="submit" disabled={text.trim() === ""}>
+        <IconButton
+          size="large"
+          type="submit"
+          disabled={text.trim() === "" || convStore.status !== "Idle"}
+        >
           <Send />
         </IconButton>
       </div>

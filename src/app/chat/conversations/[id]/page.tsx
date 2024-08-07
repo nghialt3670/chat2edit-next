@@ -13,7 +13,6 @@ export default async function ConversationPage({
   params: { id: string };
 }) {
   const { id } = params;
-  console.log(id);
 
   const conv = await Conversation.findById(id);
   let fetchedMessages;

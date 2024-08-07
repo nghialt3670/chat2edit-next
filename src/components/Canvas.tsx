@@ -3,19 +3,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Canvas as FabricCanvas, FabricImage, FabricObject } from "fabric";
 import useFileStore from "@/stores/FileStore";
-import { readFileAsText, readFileAsDataURL } from "@/utils/client/file";
-import classes from "./Canvas.module.css";
+import {
+  getFilenameFromContentDisposition,
+  readFileAsText,
+} from "@/utils/client/file";
 import { IconButton } from "@mui/material";
 import useCanvasStore from "@/stores/CanvasStore";
+import { Download, Upload } from "lucide-react";
 
 const CANVAS_WIDTH = 1200;
 const CANVAS_HEIGHT = 800;
 
-export default function Canvas({
-  onError,
-}: {
-  onError: (fileId: string) => void;
-}) {
+export default function Canvas({ fileId }: { fileId: string }) {
   const canvasElementRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fabricCanvasRef = useRef<FabricCanvas>();
@@ -24,6 +23,42 @@ export default function Canvas({
   const [selectedObject, setSelectedObject] = useState<FabricObject | null>(
     null,
   );
+  const [file, setFile] = useState<File>();
+
+  useEffect(() => {
+    const getAndSetFile = async () => {
+      const endpoint = `/api/files/${fileId}`;
+      const response = await fetch(endpoint);
+      if (!response.ok) {
+        // if (onError) onError(fileId);
+        // setIsError(true);
+        return;
+      }
+
+      const blob = await response.blob();
+
+      const contentDisposition = response.headers.get("Content-Disposition");
+      if (!contentDisposition) {
+        // if (onError) onError(fileId);
+        // setIsError(true);
+        return;
+      }
+
+      const filename = getFilenameFromContentDisposition(contentDisposition);
+      if (!filename) {
+        // if (onError) onError(fileId);
+        // setIsError(true);
+        return;
+      }
+
+      const file = new File([blob], filename, { type: blob.type });
+      fileStore.addFile(fileId, file);
+      setFile(file);
+    };
+    const file = fileStore.getFile(fileId);
+    if (!file) getAndSetFile();
+    else setFile(file);
+  }, [fileId]);
 
   useEffect(() => {
     const initFabricCanvas = async () => {
@@ -34,13 +69,17 @@ export default function Canvas({
         });
       }
 
-      const fileId = canvasStore.fileId;
       if (fileId && fabricCanvasRef.current) {
         const file = fileStore.getFile(fileId);
+        if (!file) {
+          return;
+        }
 
-        if (!file) const json = await readFileAsText(file);
+        const json = await readFileAsText(file);
         if (!json) return;
+
         await fabricCanvasRef.current.loadFromJSON(json);
+
         const backgroundImage = fabricCanvasRef.current.backgroundImage;
         if (backgroundImage) {
           const zoomRatio = CANVAS_WIDTH / backgroundImage.getScaledWidth();
@@ -49,6 +88,7 @@ export default function Canvas({
             backgroundImage.getScaledHeight() * zoomRatio,
           );
         }
+
         fabricCanvasRef.current.on("mouse:down", () => console.log("hihi"));
         fabricCanvasRef.current.renderAll();
       }
@@ -60,25 +100,23 @@ export default function Canvas({
 
     initFabricCanvas();
     return disposeFabric;
-  }, [canvasStore]);
+  }, [file]);
 
   const handleAddImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!fabricCanvasRef.current) return;
-    if (!event.target.files?.length) return;
-
-    const file = event.target.files[0];
-    const dataURL = await readFileToDataURL(file);
-    if (!dataURL) return;
-
-    const backgroundImage = await FabricImage.fromURL(dataURL);
-    backgroundImage.set("filename", file.name);
-    fabricCanvasRef.current.backgroundImage = backgroundImage;
-    const zoomRatio = CANVAS_WIDTH / backgroundImage.getScaledWidth();
-    fabricCanvasRef.current.setZoom(zoomRatio);
-    fabricCanvasRef.current.setHeight(
-      backgroundImage.getScaledHeight() * zoomRatio,
-    );
-    fabricCanvasRef.current.renderAll();
+    // if (!fabricCanvasRef.current) return;
+    // if (!event.target.files?.length) return;
+    // const file = event.target.files[0];
+    // const dataURL = await readFileToDataURL(file);
+    // if (!dataURL) return;
+    // const backgroundImage = await FabricImage.fromURL(dataURL);
+    // backgroundImage.set("filename", file.name);
+    // fabricCanvasRef.current.backgroundImage = backgroundImage;
+    // const zoomRatio = CANVAS_WIDTH / backgroundImage.getScaledWidth();
+    // fabricCanvasRef.current.setZoom(zoomRatio);
+    // fabricCanvasRef.current.setHeight(
+    //   backgroundImage.getScaledHeight() * zoomRatio,
+    // );
+    // fabricCanvasRef.current.renderAll();
   };
 
   const handleRemoveObject = () => {
@@ -103,24 +141,24 @@ export default function Canvas({
   };
 
   return (
-    <div>
-      <div className={classes.toolbar}>
+    <div className="flex flex-col">
+      <div>
         <input
           type="file"
           accept="image/*"
           onChange={handleAddImage}
-          className={classes.file_input}
           ref={fileInputRef}
+          style={{ display: "none" }}
         />
+        <IconButton onClick={handleUploadClick}>
+          <Upload />
+        </IconButton>
+        <IconButton onClick={handleDownloadClick}>
+          <Download />
+        </IconButton>
       </div>
-      <IconButton onClick={handleUploadClick}>
-        <MdAddPhotoAlternate />
-      </IconButton>
-      <IconButton onClick={handleDownloadClick}>
-        <MdFileDownload className="size-full" />
-      </IconButton>
 
-      <canvas className={classes.main} ref={canvasElementRef}></canvas>
+      <canvas className="" ref={canvasElementRef}></canvas>
     </div>
   );
 }

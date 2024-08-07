@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: "Edit with AI",
 };
 
-export default function RootLayout({
+export default function EditLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

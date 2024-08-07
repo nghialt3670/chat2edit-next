@@ -59,6 +59,7 @@ export default function FilePreview({
       }
 
       const file = new File([blob], filename, { type: blob.type });
+      fileStore.addFile(fileId, file);
       setFile(file);
     };
     const file = fileStore.getFile(fileId);
@@ -104,6 +105,8 @@ export default function FilePreview({
     return <div>error</div>;
   }
 
+  console.log(imageSize);
+
   return (
     <div className="flex justify-center items-center">
       {file ? (
@@ -122,7 +125,7 @@ export default function FilePreview({
             </div>
           )
         ) : (
-          <div className="w-64 h-14 pr-10 flex bg-slate-400 overflow-hidden">
+          <div className="w-64 h-14 pr-10 flex bg-slate-300 overflow-hidden border-slate-400 border-2 rounded-xl">
             <div className="h-full w-fit p-4 flex justify-center items-center font-bold">
               {getExtension(file.name).toUpperCase()}
             </div>

@@ -1,5 +1,6 @@
+import Canvas from "@/components/Canvas";
 import React from "react";
 
 export default function CanvasEditPage({ params }: { params: { id: string } }) {
-  return <div></div>;
+  return <Canvas fileId={params.id} />;
 }
