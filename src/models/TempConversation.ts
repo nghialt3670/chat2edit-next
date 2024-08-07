@@ -1,3 +1,4 @@
+import { TEMP_CONVERSATION_EXPIRE_SECONDS } from "@/config/timer";
 import mongoose, { Document, Model, Schema } from "mongoose";
 
 export interface ITempConversation extends Document {
@@ -11,7 +12,7 @@ const TempConversationSchema: Schema<ITempConversation> = new Schema(
       type: Number,
       default: Date.now,
       required: true,
-      expires: process.env.TEMP_CONVERSATION_EXPIRE_SECONDS,
+      expires: TEMP_CONVERSATION_EXPIRE_SECONDS,
     },
     lastModified: { type: Number, default: Date.now, required: true },
   },
