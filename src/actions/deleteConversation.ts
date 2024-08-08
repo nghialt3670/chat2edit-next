@@ -6,7 +6,6 @@ import User from "@/models/User";
 import Message from "@/models/Message";
 import connectToDatabase from "@/lib/mongo";
 import { auth } from "@clerk/nextjs/server";
-import { revalidatePath } from "next/cache";
 import Conversation from "@/models/Conversation";
 import { deleteFilesFromGridFS } from "@/lib/gridfs";
 import { GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME } from "@/config/db";
