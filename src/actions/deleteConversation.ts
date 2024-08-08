@@ -37,6 +37,4 @@ export async function deleteConversation(conversationId: string) {
   );
   const bucketName = GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME;
   await deleteFilesFromGridFS(fileIds, mongoose.connection, bucketName);
-
-  revalidatePath("/chat");
 }
