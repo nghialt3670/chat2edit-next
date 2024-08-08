@@ -8,7 +8,6 @@ import {
   Edit,
   Home,
   Menu,
-  Sidebar,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -85,6 +84,7 @@ export default function Navbar() {
                   </Typography>
                 </div>
               </Link>
+              <div className="mb-2"></div>
             <ConvList />
           </div>
         )}

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { IconButton } from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
 import { deleteConversation } from "@/actions/deleteConversation";
+import useConvListStore from "@/stores/ConvListStore";
 
 export default function ConvItem({
   convId,
@@ -16,9 +17,11 @@ export default function ConvItem({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const convListStore = useConvListStore();
 
   const handleRemoveClick = async () => {
     await deleteConversation(convId);
+    convListStore.removeConv(convId);
     if (pathname.endsWith(convId)) router.push("/chat");
   };
 
