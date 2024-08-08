@@ -1,18 +1,18 @@
 import { create } from "zustand";
 
 interface LayoutStore {
-  navbarExpanded: boolean;
+  sidebarExpanded: boolean;
   convBarExpanded: boolean;
-  toggleNavbar: () => void;
+  toggleSidebar: () => void;
   toggleConvBar: () => void;
 }
 
 const useLayoutStore = create<LayoutStore>((set) => ({
-  navbarExpanded: false,
+  sidebarExpanded: false,
   convBarExpanded: false,
-  toggleNavbar: () =>
+  toggleSidebar: () =>
     set((state) => ({
-      navbarExpanded: !state.navbarExpanded,
+      sidebarExpanded: !state.sidebarExpanded,
     })),
   toggleConvBar: () =>
     set((state) => ({

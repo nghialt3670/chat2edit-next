@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import AppBar from "@/components/AppBar";
 import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
+import Sidebar from "@/components/Sidebar";
 import { ClerkProvider } from "@clerk/nextjs";
 import ConvList from "@/components/ConvList";
 import { Divider } from "@mui/material";
@@ -25,14 +25,8 @@ export default function RootLayout({
       <html lang="en">
         <body className={inter.className}>
           <div className="md:absolute w-14 h-full"></div>
-          <Navbar />
-          <div className="flex flex-col size-full bg-slate-300">
-            <AppBar />
-            <main className="flex flex-row h-[calc(100%-5rem)]">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <Sidebar />
+          {children}
         </body>
       </html>
     </ClerkProvider>

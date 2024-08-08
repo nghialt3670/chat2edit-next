@@ -6,7 +6,7 @@ import Link from "next/link";
 import { IconButton } from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
 import { deleteConversation } from "@/actions/deleteConversation";
-import useConvListStore from "@/stores/ConvListStore";
+import { useRef } from "react";
 
 export default function ConvItem({
   convId,
@@ -17,15 +17,14 @@ export default function ConvItem({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const convListStore = useConvListStore();
 
   const handleRemoveClick = async () => {
     await deleteConversation(convId);
-    convListStore.removeConv(convId);
     if (pathname.endsWith(convId)) router.push("/chat");
   };
 
   const isSelected = pathname.endsWith(convId);
+
   return (
     <div
       className={`flex flex-row items-center hover:backdrop-brightness-95 ${isSelected ? `backdrop-brightness-95` : ``}`}

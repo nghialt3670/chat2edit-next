@@ -7,33 +7,35 @@ import Message from "@/models/Message";
 import IMessage from "@/types/Message";
 import connectToDatabase from "@/lib/mongo";
 import { auth } from "@clerk/nextjs/server";
-import { revalidatePath } from "next/cache";
 import Conversation from "@/models/Conversation";
+import SendMessageRequest from "@/types/SendMessageRequest";
 import { GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME } from "@/config/db";
+import { revalidatePath } from "next/cache";
 
 interface ChatResponse {
   text: string;
   file_ids: string[];
 }
 
-export async function sendMessage(formData: FormData): Promise<IMessage> {
+export async function sendMessage(request: SendMessageRequest): Promise<IMessage> {
   await connectToDatabase();
-  const { userId } = auth();
 
-  const convId = formData.get("conversationId")! as string;
-  const text = formData.get("text") as string;
-  const fileIds = formData.getAll("fileIds") as string[];
+  const { userId } = auth();
+  const { conversationId, text, fileIds } = request;
 
   const user = await User.findOne({ clerkId: userId });
   if (!user) throw new Error("User not created");
 
-  const conv = await Conversation.findOne({ _id: convId, userId: user.id });
+  const conv = await Conversation.findOne({
+    _id: conversationId,
+    userId: user.id,
+  });
   if (!conv) throw new Error("Conversation not created");
 
   const bucketName = GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME;
   const endpoint = `${process.env.CHAT_SERVICE_BASE_URL}/api/v1/chat`;
   const reqBody = JSON.stringify({
-    conversation_id: convId,
+    conversation_id: conversationId,
     text,
     file_ids: fileIds,
     bucket_name: bucketName,
@@ -60,7 +62,7 @@ export async function sendMessage(formData: FormData): Promise<IMessage> {
     lastModified: Date.now(),
   });
 
-  revalidatePath(`/chat/conversations/${convId}`);
+  revalidatePath(`/chat/conversations/${conversationId}`);
 
   return {
     type: "Response",

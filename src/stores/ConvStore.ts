@@ -1,19 +1,19 @@
 import Message from "@/types/Message";
 import { create } from "zustand";
 
-interface ConversationStore {
+interface ConvStore {
   id: string | null;
-  status: "Idle" | "Requesting" | "Responding" | "Error";
+  status: "Idle" | "Responding" | "Error";
   title: string;
   messages: Message[];
   setId: (id: string | null) => void;
-  setStatus: (status: "Idle" | "Requesting" | "Responding" | "Error") => void;
+  setStatus: (status: "Idle" | "Responding" | "Error") => void;
   setTitle: (title: string) => void;
   setMessages: (messages: Message[]) => void;
   addMessage: (message: Message) => void;
 }
 
-const useConversationStore = create<ConversationStore>((set) => ({
+const useConvStore = create<ConvStore>((set) => ({
   id: null,
   status: "Idle",
   title: "New Conversation",
@@ -26,4 +26,4 @@ const useConversationStore = create<ConversationStore>((set) => ({
     set((state) => ({ messages: [...state.messages, message] })),
 }));
 
-export default useConversationStore;
+export default useConvStore;

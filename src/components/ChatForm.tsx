@@ -7,57 +7,53 @@ import { Send, Upload } from "lucide-react";
 
 import { useUser } from "@clerk/nextjs";
 import { IconButton } from "@mui/material";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import useFileStore from "@/stores/FileStore";
 import { sendMessage } from "@/actions/sendMessage";
 import { postMessage } from "@/actions/postMessage";
 import useChatFormStore from "@/stores/ChatFormStore";
 import { postTempMessage } from "@/actions/postTempMessage";
 import { sendTempMessage } from "@/actions/sendTempMessage";
-import { RESPONDING_MESSAGE_DELAY_MS } from "@/config/timer";
-import useConversationStore from "@/stores/ConversationStore";
 
 import FormFile from "./FormFile";
+import SendMessageRequest from "@/types/SendMessageRequest";
+import { RESPONDING_MESSAGE_DELAY_MS } from "@/config/timer";
+import useConvStore from "@/stores/ConvStore";
 
 export default function ChatForm() {
   const [text, setText] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  const convStore = useConversationStore();
   const formStore = useChatFormStore();
   const fileStore = useFileStore();
   const router = useRouter();
   const user = useUser();
+  const [request, setRequest] = useState<SendMessageRequest>();
+  const convStore = useConvStore();
 
   useEffect(() => {
     const updateConversation = async () => {
-      if (convStore.messages.length % 2 === 0) return;
-      if (convStore.status !== "Requesting") return;
+      if (!request) return;
       setTimeout(
         () => convStore.setStatus("Responding"),
         RESPONDING_MESSAGE_DELAY_MS,
       );
 
-      const reqMessage = convStore.messages[convStore.messages.length - 1];
-      const formData = new FormData();
-      formData.set("conversationId", convStore.id!);
-      formData.set("text", reqMessage.text);
-      reqMessage.fileIds.forEach((fileId) => formData.set("fileIds", fileId));
-
       try {
         const resMessage = user.isSignedIn
-          ? await sendMessage(formData)
-          : await sendTempMessage(formData);
+          ? await sendMessage(request)
+          : await sendTempMessage(request);
         convStore.setStatus("Idle");
         convStore.addMessage(resMessage);
         convStore.setTitle(resMessage.text);
+        setRequest(undefined);
       } catch (error) {
         convStore.setStatus("Error");
       }
     };
     updateConversation();
-  }, [convStore.messages]);
+  }, [convStore]);
 
   const handleFileInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files) return;
@@ -93,6 +89,7 @@ export default function ChatForm() {
     if (!convStore.id) {
       convStore.setId(conversationId);
       router.push(`/chat/conversations/${conversationId}`);
+      console.log(`/chat/conversations/${conversationId}`)
     } else {
       convStore.addMessage({
         id: new mongoose.Types.ObjectId().toString(),
@@ -102,11 +99,15 @@ export default function ChatForm() {
       });
     }
 
-    // Reset input states
+    const request: SendMessageRequest = {
+      conversationId,
+      text,
+      fileIds
+    }
+    
+    setRequest(request);
     formStore.setFileIds([]);
     setText("");
-
-    convStore.setStatus("Requesting");
   };
 
   return (
@@ -143,11 +144,7 @@ export default function ChatForm() {
           onChange={(e) => setText(e.target.value)}
         />
         <input type="submit" hidden />
-        <IconButton
-          size="large"
-          type="submit"
-          disabled={text.trim() === "" || convStore.status !== "Idle"}
-        >
+        <IconButton size="large" type="submit" disabled={text.trim() === ""}>
           <Send />
         </IconButton>
       </div>

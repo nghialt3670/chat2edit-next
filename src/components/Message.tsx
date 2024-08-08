@@ -33,8 +33,8 @@ export default function Message({
           <>
             <p className="whitespace-pre-wrap">{text}</p>
             <div>
-              {fileIds!.map((fileId) => (
-                <MessageFile key={fileId} fileId={fileId} />
+              {fileIds!.map((id) => (
+                <MessageFile key={id} fileId={id} />
               ))}
             </div>
           </>

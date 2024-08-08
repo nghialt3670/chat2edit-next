@@ -1,22 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
-import {
-  BotMessageSquare,
-  CirclePlus,
-  Edit,
-  Home,
-  Menu,
-} from "lucide-react";
+import { BotMessageSquare, Edit, Home } from "lucide-react";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import useLayoutStore from "@/stores/LayoutStore";
-import { Divider, IconButton, Typography } from "@mui/material";
+import { Divider, IconButton } from "@mui/material";
+import { Sidebar as SidebarIcon } from "lucide-react";
 
 import NavItem from "./NavItem";
-import ConvList from "./ConvList";
 
 const NAV_ITEM_INFO = [
   {
@@ -36,11 +29,11 @@ const NAV_ITEM_INFO = [
   },
 ];
 
-export default function Navbar() {
+export default function Sidebar() {
   const [currPath, setCurrPath] = useState<string>("/");
   const pathname = usePathname();
   const layoutStore = useLayoutStore();
-  const widthStyle = layoutStore.navbarExpanded ? "w-72" : "w-14";
+  const widthStyle = layoutStore.sidebarExpanded ? "w-72" : "w-14";
 
   useEffect(() => {
     if (pathname.startsWith("/chat")) setCurrPath("/chat");
@@ -49,12 +42,12 @@ export default function Navbar() {
   }, [pathname]);
 
   return (
-    <div
+    <aside
       className={`bg-slate-400 h-full ${widthStyle} p-2 transition-width duration-200 ease-in-out md:relative absolute z-50`}
     >
       <div>
-        <IconButton onClick={layoutStore.toggleNavbar}>
-          <Menu />
+        <IconButton onClick={layoutStore.toggleSidebar}>
+          <SidebarIcon />
         </IconButton>
       </div>
       <Divider sx={{ marginTop: 1, marginBottom: 1 }} />
@@ -71,24 +64,6 @@ export default function Navbar() {
         ))}
       </nav>
       <Divider sx={{ marginTop: 1, marginBottom: 1 }} />
-      <div className="w-inherit overflow-hidden space-y-4">
-        {currPath.startsWith("/chat") && (
-          <div>
-              <Link href="/chat">
-                <div className="flex flex-row items-center rounded hover:backdrop-brightness-95">
-                  <IconButton disableRipple>
-                    <CirclePlus />
-                  </IconButton>
-                  <Typography sx={{ overflow: "hidden", width: "inherit", textWrap: "nowrap" }}>
-                    New Conversation
-                  </Typography>
-                </div>
-              </Link>
-              <div className="mb-2"></div>
-            <ConvList />
-          </div>
-        )}
-      </div>
-    </div>
+    </aside>
   );
 }

@@ -2,12 +2,14 @@ import { TEMP_CONVERSATION_EXPIRE_SECONDS } from "@/config/timer";
 import mongoose, { Document, Model, Schema } from "mongoose";
 
 export interface ITempConversation extends Document {
+  isError: boolean;
   createdAt: number;
   lastModified: number;
 }
 
 const TempConversationSchema: Schema<ITempConversation> = new Schema(
   {
+    isError: { type: Boolean, default: false },
     createdAt: {
       type: Number,
       default: Date.now,

@@ -9,6 +9,7 @@ import { auth } from "@clerk/nextjs/server";
 import Conversation from "@/models/Conversation";
 import { deleteFilesFromGridFS } from "@/lib/gridfs";
 import { GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME } from "@/config/db";
+import { revalidatePath } from "next/cache";
 
 export async function deleteConversation(conversationId: string) {
   await connectToDatabase();
@@ -36,4 +37,6 @@ export async function deleteConversation(conversationId: string) {
   );
   const bucketName = GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME;
   await deleteFilesFromGridFS(fileIds, mongoose.connection, bucketName);
+
+  revalidatePath(`/chat`);
 }
