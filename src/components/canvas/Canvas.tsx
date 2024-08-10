@@ -5,19 +5,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { Download, Upload } from "lucide-react";
 import { Canvas as FabricCanvas, FabricImage, FabricObject } from "fabric";
 
-import {
-  CircularProgress,
-  circularProgressClasses,
-  IconButton,
-} from "@mui/material";
 import useFileStore from "@/stores/FileStore";
-import useCanvasStore from "@/stores/CanvasStore";
-import {
-  getFilenameFromContentDisposition,
-  readFileAsDataURL,
-  readFileAsText,
-} from "@/utils/client/file";
-import getFile from "@/api/getFile";
+import { CircularProgress, IconButton } from "@mui/material";
+import { readFileAsDataURL, readFileAsText } from "@/utils/client/file";
 
 export default function Canvas({ fileId }: { fileId?: string }) {
   const canvasElementRef = useRef<HTMLCanvasElement>(null);

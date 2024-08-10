@@ -1,7 +1,8 @@
+import { Download, Edit, Reply } from "lucide-react";
+
+import { useRouter } from "next/navigation";
 import useFileStore from "@/stores/FileStore";
 import { CircularProgress, IconButton } from "@mui/material";
-import { Download, Edit, Reply } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 export default function MessageFile({
   fileId,

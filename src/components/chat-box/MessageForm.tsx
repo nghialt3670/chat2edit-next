@@ -7,7 +7,6 @@ import { Send, Upload } from "lucide-react";
 import Message from "@/types/Message";
 import { IconButton } from "@mui/material";
 import useFileStore from "@/stores/FileStore";
-import useChatFormStore from "@/stores/ChatFormStore";
 import FormFile from "./FormFile";
 
 export default function MessageForm({

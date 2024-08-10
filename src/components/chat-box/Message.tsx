@@ -1,13 +1,15 @@
 "use client";
 
-import { Skeleton } from "@mui/material";
-import MessageAvatar from "./MessageAvatar";
-import MessageFile from "./MessageFile";
 import { useEffect, useState } from "react";
+
 import getFile from "@/api/getFile";
+import { Skeleton } from "@mui/material";
 import useFileStore from "@/stores/FileStore";
 import { readFileAsDataURL } from "@/utils/client/file";
 import { createCanvasFromFile } from "@/utils/client/fabric";
+
+import MessageFile from "./MessageFile";
+import MessageAvatar from "./MessageAvatar";
 
 export default function Message({
   type,

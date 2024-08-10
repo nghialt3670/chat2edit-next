@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
 import Message from "@/types/Message";
 import MessageNode from "@/components/chat-box/Message";
