@@ -1,9 +1,7 @@
 "use client";
 
-import Message from "@/components/Message";
-import MessageList from "@/components/MessageList";
-import React, { useEffect } from "react";
+import ChatBox from "@/components/chat-box/ChatBox";
 
 export default function ChatPage() {
-  return <div></div>;
+  return <ChatBox conversationId="" status="Idle" messages={[]} />;
 }

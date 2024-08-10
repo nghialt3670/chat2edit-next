@@ -6,10 +6,11 @@ import { BotMessageSquare, Edit, Home } from "lucide-react";
 
 import { usePathname } from "next/navigation";
 import useLayoutStore from "@/stores/LayoutStore";
-import { Divider, IconButton } from "@mui/material";
+import { Button, Divider, IconButton, Stack } from "@mui/material";
 import { Sidebar as SidebarIcon } from "lucide-react";
 
-import NavItem from "./NavItem";
+import NavButton from "./NavButton";
+import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 
 const NAV_ITEM_INFO = [
   {
@@ -30,10 +31,10 @@ const NAV_ITEM_INFO = [
 ];
 
 export default function Sidebar() {
-  const [currPath, setCurrPath] = useState<string>("/");
-  const pathname = usePathname();
+  const [currPath, setCurrPath] = useState<string>(".");
   const layoutStore = useLayoutStore();
-  const widthStyle = layoutStore.sidebarExpanded ? "w-72" : "w-14";
+  const widthStyle = layoutStore.sidebarExpanded ? "w-60" : "w-14";
+  const pathname = usePathname();
 
   useEffect(() => {
     if (pathname.startsWith("/chat")) setCurrPath("/chat");
@@ -41,29 +42,52 @@ export default function Sidebar() {
     else setCurrPath("/");
   }, [pathname]);
 
+  const base_url = process.env.NEXT_PUBLIC_BASE_URL;
+
   return (
     <aside
-      className={`bg-slate-400 h-full ${widthStyle} p-2 transition-width duration-200 ease-in-out md:relative absolute z-50`}
+      className={`bg-[#9BABB8] flex flex-col ${widthStyle} h-full p-2 transition-width duration-200 ease-in-out md:relative absolute z-50`}
     >
-      <div>
+      <div className="flex flex-row items-center">
         <IconButton onClick={layoutStore.toggleSidebar}>
           <SidebarIcon />
         </IconButton>
+        <h1 className="w-inherit overflow-hidden ml-6 text-lg font-bold">Chat2Edit</h1>
       </div>
       <Divider sx={{ marginTop: 1, marginBottom: 1 }} />
       <nav className="flex flex-col w-inherit justify-center">
         {NAV_ITEM_INFO.map(({ path, icon, text }) => (
-          <NavItem
-            currPath={currPath}
+          <NavButton
             key={path}
             path={path}
             icon={icon}
             text={text}
-            onClick={setCurrPath}
+            isSelected={path === currPath}
+            onClick={() => setCurrPath(path)}
           />
         ))}
       </nav>
       <Divider sx={{ marginTop: 1, marginBottom: 1 }} />
+      <div className="flex flex-col mt-auto space-x-2">
+        {layoutStore.sidebarExpanded && (
+          <SignedOut>
+            <Stack direction="column">
+              <SignInButton mode="modal" fallbackRedirectUrl={base_url}>
+                <Button color="primary" sx={{textWrap: "nowrap"}}>Log In</Button>
+              </SignInButton>
+              <SignUpButton mode="modal" fallbackRedirectUrl={base_url}>
+                <Button color="inherit" sx={{textWrap: "nowrap"}}>Sign Up</Button>
+              </SignUpButton>
+            </Stack>
+          </SignedOut>
+        )
+        }
+      </div>
+      <div className="m-2 mb-0">
+        <SignedIn>
+          <UserButton afterSignOutUrl={base_url} />
+        </SignedIn>
+      </div>
     </aside>
   );
 }

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import useFileStore from "@/stores/FileStore";
 import useChatFormStore from "@/stores/ChatFormStore";
 
-import FilePreview from "./FilePreview";
+import FormFile from "./FormFile";
 
 export default function MessageFile({ fileId }: { fileId: string }) {
   const formStore = useChatFormStore();
@@ -40,7 +40,7 @@ export default function MessageFile({ fileId }: { fileId: string }) {
           </IconButton>
         </div>
       </div>
-      <FilePreview fileId={fileId} loadingSize={32} imageWidth={64} />
+      <FormFile fileId={fileId} loadingSize={32} imageWidth={64} />
     </div>
   );
 }

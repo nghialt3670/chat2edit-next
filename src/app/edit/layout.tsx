@@ -9,5 +9,5 @@ export default function EditLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <div>{children}</div>;
+  return <div className="size-full bg-[#BDCDD6]">{children}</div>;
 }

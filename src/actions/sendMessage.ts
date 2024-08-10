@@ -1,23 +1,24 @@
 "use server";
 
-import mongoose from "mongoose";
-
 import User from "@/models/User";
 import Message from "@/models/Message";
-import IMessage from "@/types/Message";
 import connectToDatabase from "@/lib/mongo";
 import { auth } from "@clerk/nextjs/server";
+import { revalidatePath } from "next/cache";
 import Conversation from "@/models/Conversation";
 import SendMessageRequest from "@/types/SendMessageRequest";
 import { GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME } from "@/config/db";
-import { revalidatePath } from "next/cache";
+import IMessage from "@/types/Message";
+import mongoose from "mongoose";
 
 interface ChatResponse {
   text: string;
   file_ids: string[];
 }
 
-export async function sendMessage(request: SendMessageRequest): Promise<IMessage> {
+export async function sendMessage(
+  request: SendMessageRequest,
+): Promise<IMessage | null> {
   await connectToDatabase();
 
   const { userId } = auth();
@@ -40,6 +41,7 @@ export async function sendMessage(request: SendMessageRequest): Promise<IMessage
     file_ids: fileIds,
     bucket_name: bucketName,
   });
+
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {
@@ -48,10 +50,15 @@ export async function sendMessage(request: SendMessageRequest): Promise<IMessage
     body: reqBody,
   });
 
-  if (!response.ok) throw new Error("Chat service error");
+  if (!response.ok) {
+    await conv.updateOne({ isError: true });
+    revalidatePath(`/chat/conversations/${conversationId}`);
+    return null;
+  }
+
   const payload = (await response.json()) as ChatResponse;
 
-  await Message.create({
+  const resMessage = await Message.create({
     conversationId: conv.id,
     text: payload.text,
     fileIds: payload.file_ids,
@@ -65,9 +72,9 @@ export async function sendMessage(request: SendMessageRequest): Promise<IMessage
   revalidatePath(`/chat/conversations/${conversationId}`);
 
   return {
+    id: resMessage.id,
     type: "Response",
-    id: new mongoose.Types.ObjectId().toString(),
-    text: payload.text,
-    fileIds: payload.file_ids,
+    text: resMessage.text,
+    fileIds: resMessage.fileIds.map((id) => String(id)),
   };
 }

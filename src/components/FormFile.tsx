@@ -4,7 +4,7 @@ import { IconButton } from "@mui/material";
 import useFileStore from "@/stores/FileStore";
 import useChatFormStore from "@/stores/ChatFormStore";
 
-import FilePreview from "./FilePreview";
+import FormFile from "./FormFile";
 
 export default function FormFile({ fileId }: { fileId: string }) {
   const formStore = useChatFormStore();
@@ -22,12 +22,7 @@ export default function FormFile({ fileId }: { fileId: string }) {
           <XCircle size={20} />
         </IconButton>
       </div>
-      <FilePreview
-        fileId={fileId}
-        loadingSize={20}
-        imageSize={20}
-        opacity={60}
-      />
+      <FormFile fileId={fileId} loadingSize={20} imageSize={20} opacity={60} />
     </div>
   );
 }

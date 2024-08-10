@@ -1,96 +1,86 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+
+import { Download, Upload } from "lucide-react";
 import { Canvas as FabricCanvas, FabricImage, FabricObject } from "fabric";
+
+import {
+  CircularProgress,
+  circularProgressClasses,
+  IconButton,
+} from "@mui/material";
 import useFileStore from "@/stores/FileStore";
+import useCanvasStore from "@/stores/CanvasStore";
 import {
   getFilenameFromContentDisposition,
+  readFileAsDataURL,
   readFileAsText,
 } from "@/utils/client/file";
-import { IconButton } from "@mui/material";
-import useCanvasStore from "@/stores/CanvasStore";
-import { Download, Upload } from "lucide-react";
+import getFile from "@/api/getFile";
 
-const CANVAS_WIDTH = 1200;
-const CANVAS_HEIGHT = 800;
-
-export default function Canvas({ fileId }: { fileId: string }) {
+export default function Canvas({ fileId }: { fileId?: string }) {
   const canvasElementRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fabricCanvasRef = useRef<FabricCanvas>();
   const fileStore = useFileStore();
-  const canvasStore = useCanvasStore();
   const [selectedObject, setSelectedObject] = useState<FabricObject | null>(
     null,
   );
   const [file, setFile] = useState<File>();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    const getAndSetFile = async () => {
-      const endpoint = `/api/files/${fileId}`;
-      const response = await fetch(endpoint);
-      if (!response.ok) {
-        // if (onError) onError(fileId);
-        // setIsError(true);
-        return;
-      }
+  const canvasWidth = screen.width * 0.7;
+  const canvasHeight = screen.height * 0.7;
 
-      const blob = await response.blob();
+  // useEffect(() => {
+  //   const getAndSetFile = async () => {
+  //     const file = await getFile(fileId);
+  //     fileStore.addFile(fileId, file);
+  //     setFile(file);
+  //   };
 
-      const contentDisposition = response.headers.get("Content-Disposition");
-      if (!contentDisposition) {
-        // if (onError) onError(fileId);
-        // setIsError(true);
-        return;
-      }
-
-      const filename = getFilenameFromContentDisposition(contentDisposition);
-      if (!filename) {
-        // if (onError) onError(fileId);
-        // setIsError(true);
-        return;
-      }
-
-      const file = new File([blob], filename, { type: blob.type });
-      fileStore.addFile(fileId, file);
-      setFile(file);
-    };
-    const file = fileStore.getFile(fileId);
-    if (!file) getAndSetFile();
-    else setFile(file);
-  }, [fileId]);
+  // }, [fileId]);
 
   useEffect(() => {
     const initFabricCanvas = async () => {
       if (canvasElementRef.current) {
         fabricCanvasRef.current = new FabricCanvas(canvasElementRef.current, {
-          width: CANVAS_WIDTH,
-          height: CANVAS_HEIGHT,
+          width: canvasWidth,
+          height: canvasHeight,
         });
       }
 
       if (fileId && fabricCanvasRef.current) {
         const file = fileStore.getFile(fileId);
-        if (!file) {
+        if (!file) return;
+
+        if (file.type.startsWith("image/")) {
+          const dataURL = await readFileAsDataURL(file);
+          if (dataURL)
+            fabricCanvasRef.current.backgroundImage = await FabricImage.fromURL(
+              dataURL.toString(),
+            );
+        } else if (file.name.endsWith(".canvas")) {
+          const json = await readFileAsText(file);
+          if (json) await fabricCanvasRef.current.loadFromJSON(json);
+        } else {
           return;
         }
 
-        const json = await readFileAsText(file);
-        if (!json) return;
-
-        await fabricCanvasRef.current.loadFromJSON(json);
-
         const backgroundImage = fabricCanvasRef.current.backgroundImage;
         if (backgroundImage) {
-          const zoomRatio = CANVAS_WIDTH / backgroundImage.getScaledWidth();
+          const zoomRatio =
+            fabricCanvasRef.current.getWidth() /
+            backgroundImage.getScaledWidth();
           fabricCanvasRef.current.setZoom(zoomRatio);
           fabricCanvasRef.current.setHeight(
             backgroundImage.getScaledHeight() * zoomRatio,
           );
         }
 
-        fabricCanvasRef.current.on("mouse:down", () => console.log("hihi"));
         fabricCanvasRef.current.renderAll();
+        setIsLoading(false);
       }
     };
 
@@ -141,7 +131,7 @@ export default function Canvas({ fileId }: { fileId: string }) {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col bg-slate-500">
       <div>
         <input
           type="file"
@@ -158,7 +148,9 @@ export default function Canvas({ fileId }: { fileId: string }) {
         </IconButton>
       </div>
 
-      <canvas className="" ref={canvasElementRef}></canvas>
+      <canvas className="w-40 h-40" ref={canvasElementRef}>
+        {isLoading && <CircularProgress disableShrink />}
+      </canvas>
     </div>
   );
 }

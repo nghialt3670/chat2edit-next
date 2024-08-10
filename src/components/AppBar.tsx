@@ -1,10 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 
-import { Button, IconButton, Stack } from "@mui/material";
+import { Menu, SquarePlus } from "lucide-react";
+
+import Link from "next/link";
 import useUserStore from "@/stores/UserStore";
+import useLayoutStore from "@/stores/LayoutStore";
 import { readFileAsDataURL } from "@/utils/client/file";
+import { Button, IconButton, Stack } from "@mui/material";
 import {
   SignedIn,
   SignedOut,
@@ -13,14 +17,10 @@ import {
   UserButton,
   useUser,
 } from "@clerk/nextjs";
-import { CirclePlus, Menu } from "lucide-react";
-import useLayoutStore from "@/stores/LayoutStore";
-import Link from "next/link";
 
 export default function AppBar() {
   const user = useUser();
   const userStore = useUserStore();
-  const layoutStore = useLayoutStore();
 
   useEffect(() => {
     const updateUserStore = async () => {
@@ -48,32 +48,7 @@ export default function AppBar() {
 
   return (
     <header className="h-14 flex flex-row items-center justify-between pl-2 pr-4">
-      <div>
-        <IconButton onClick={layoutStore.toggleConvBar}>
-          <Menu />
-        </IconButton>
-        <IconButton onClick={layoutStore.toggleConvBar}>
-          <Link href="/chat">
-            <CirclePlus />
-          </Link>
-        </IconButton>
-      </div>
-      <div className="flex flex-row justify-center items-center space-x-2">
-        <h1 className="font-bold text-xl">Chat2Edit</h1>
-      </div>
-      <SignedOut>
-        <Stack direction="row">
-          <SignInButton mode="modal" fallbackRedirectUrl={base_url}>
-            <Button color="primary">Log In</Button>
-          </SignInButton>
-          <SignUpButton mode="modal" fallbackRedirectUrl={base_url}>
-            <Button color="inherit">Sign Up</Button>
-          </SignUpButton>
-        </Stack>
-      </SignedOut>
-      <SignedIn>
-        <UserButton afterSignOutUrl={base_url} />
-      </SignedIn>
+
     </header>
   );
 }

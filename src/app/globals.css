@@ -15,4 +15,5 @@ body {
   display: flex;
   flex-direction: row;
   box-sizing: border-box;
+  background-color: #bdcdd6;
 }

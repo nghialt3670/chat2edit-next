@@ -4,7 +4,7 @@ import { CircleUserRound } from "lucide-react";
 
 import useUserStore from "@/stores/UserStore";
 
-import Logo from "../../public/logo.svg";
+import Logo from "../../../public/logo.svg";
 
 export default function MessageAvatar({
   type,

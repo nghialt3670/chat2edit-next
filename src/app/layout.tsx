@@ -1,13 +1,10 @@
-import type { Metadata } from "next";
+import type, { Metadata } from "next";
+
 import { Inter } from "next/font/google";
-import "./globals.css";
-import AppBar from "@/components/AppBar";
-import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import { ClerkProvider } from "@clerk/nextjs";
-import ConvList from "@/components/ConvList";
-import { Divider } from "@mui/material";
-import ConvBar from "@/components/ConvBar";
+
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,7 +23,8 @@ export default function RootLayout({
         <body className={inter.className}>
           <div className="md:absolute w-14 h-full"></div>
           <Sidebar />
-          {children}
+          <div className="w-1 bg-slate-400"></div>
+          <div className="w-full">{children}</div>
         </body>
       </html>
     </ClerkProvider>

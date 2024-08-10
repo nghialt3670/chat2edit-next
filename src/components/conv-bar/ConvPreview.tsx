@@ -3,12 +3,12 @@
 import { Trash2 } from "lucide-react";
 
 import Link from "next/link";
-import { IconButton } from "@mui/material";
+import { CircularProgress, IconButton } from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
 import { deleteConversation } from "@/actions/deleteConversation";
-import { useRef } from "react";
+import { startTransition, useRef, useTransition } from "react";
 
-export default function ConvItem({
+export default function ConvPreview({
   convId,
   title,
 }: {
@@ -17,9 +17,12 @@ export default function ConvItem({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [isDeleting, startDeleting] = useTransition();
 
   const handleRemoveClick = async () => {
-    await deleteConversation(convId);
+    startDeleting(async () => {
+      await deleteConversation(convId);
+    });
     if (pathname.endsWith(convId)) router.push("/chat");
   };
 
@@ -29,13 +32,22 @@ export default function ConvItem({
     <div
       className={`flex flex-row items-center hover:backdrop-brightness-95 ${isSelected ? `backdrop-brightness-95` : ``}`}
     >
-      <div>
-        <IconButton onClick={handleRemoveClick}>
-          <Trash2 size={16} />
-        </IconButton>
+      <div className="w-10 flex justify-center items-center">
+        {isDeleting ? (
+          <CircularProgress
+            size={16}
+            color="inherit"
+            sx={{ opacity: 50 }}
+            disableShrink
+          />
+        ) : (
+          <IconButton onClick={handleRemoveClick}>
+            <Trash2 size={16} />
+          </IconButton>
+        )}
       </div>
       <Link key={convId} href={`/chat/conversations/${convId}`}>
-        <div className="flex w-44 h-12 items-center opacity-80 text-nowrap overflow-hidden">
+        <div className="flex w-52 h-12 items-center opacity-80 text-nowrap overflow-hidden">
           <span className="truncate p-2">{title}</span>
         </div>
       </Link>

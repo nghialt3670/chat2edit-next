@@ -6,18 +6,28 @@ import { auth } from "@clerk/nextjs/server";
 import Conversation from "@/models/Conversation";
 import IConversation from "@/types/Conversation";
 
-import ConvItem from "./ConvItem";
+import ConvPreview from "./ConvPreview";
 import connectToDatabase from "@/lib/mongo";
 
 export default async function ConvList() {
-  await connectToDatabase();
-
   const { userId } = auth();
+
+  if (!userId) {
+    return (
+      <p className="size-full flex justify-center items-center w-inherit overflow-hidden text-nowrap opacity-60">
+        Log in to view chat history
+      </p>
+    );
+  }
+
+  await connectToDatabase();
 
   let user = await User.findOne({ clerkId: userId });
   if (!user) user = await User.create({ clerkId: userId });
 
-  const conversations = (await Conversation.find({ userId: user.id })).reverse();
+  const conversations = (
+    await Conversation.find({ userId: user.id })
+  ).reverse();
 
   const groupedConvs: Record<string, IConversation[]> = {};
   conversations.forEach((conv) => {
@@ -51,7 +61,7 @@ export default async function ConvList() {
               </p>
             </Divider>
             {groupedConvs[date].map((conv) => (
-              <ConvItem key={conv.id} convId={conv.id} title={conv.title} />
+              <ConvPreview key={conv.id} convId={conv.id} title={conv.title} />
             ))}
           </div>
         ))}

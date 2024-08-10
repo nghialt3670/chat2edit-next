@@ -5,10 +5,11 @@ import { notFound } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import TempMessage from "@/models/TempMessage";
 import Conversation from "@/models/Conversation";
-import MessageList from "@/components/MessageList";
+import MessageList from "@/components/chat-box/MessageList";
 import TempConversation from "@/models/TempConversation";
 import { sendMessage } from "@/actions/sendMessage";
 import SendMessageRequest from "@/types/SendMessageRequest";
+import ChatBox from "@/components/chat-box/ChatBox";
 
 export default async function ConversationPage({
   params,
@@ -52,6 +53,7 @@ export default async function ConversationPage({
         fileIds: msg.fileIds.map((id) => String(id)),
       }),
     );
+    messages.reverse();
 
     if (conv.isError) status = "Error";
   }
@@ -60,7 +62,5 @@ export default async function ConversationPage({
     status = "Responding";
   }
 
-  return (
-    <MessageList conversationId={id} status={status} messages={messages} />
-  );
+  return <ChatBox conversationId={id} status={status} messages={messages} />;
 }

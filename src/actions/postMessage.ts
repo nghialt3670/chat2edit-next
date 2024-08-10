@@ -4,12 +4,13 @@ import mongoose from "mongoose";
 
 import User from "@/models/User";
 import Message from "@/models/Message";
+import { redirect } from "next/navigation";
 import connectToDatabase from "@/lib/mongo";
 import { auth } from "@clerk/nextjs/server";
+import { revalidatePath } from "next/cache";
 import Conversation from "@/models/Conversation";
 import { uploadFilesToGridFS } from "@/lib/gridfs";
 import { GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME } from "@/config/db";
-import { revalidatePath } from "next/cache";
 import PostMessageResponse from "@/types/PostMessageResponse";
 
 export async function postMessage(
@@ -23,28 +24,29 @@ export async function postMessage(
   const text = formData.get("text") as string;
   const files = (formData.getAll("files") as File[]) || [];
 
+  if (!text) throw new Error("Text is required");
+  if (text === "hheheh")
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
   let user = await User.findOne({ clerkId: userId });
-  if (!user) user = await User.create({ clerkId: userId });
+  if (!user) throw new Error("User not created");
 
   const conv = convId
     ? await Conversation.findOne({ _id: convId, userId: user.id })
     : await Conversation.create({ userId: user.id });
 
   if (!conv) throw new Error("Conversation not found");
+  const conversationId = conv.id;
 
+  const connection = mongoose.connection;
   const bucketName = GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME;
-  const fileIds = await uploadFilesToGridFS(
-    files,
-    mongoose.connection,
-    bucketName,
-  );
+  const fileIds = (
+    await uploadFilesToGridFS(files, connection, bucketName)
+  ).map((id) => id.toString());
 
-  await Message.create({ conversationId: conv!.id, text, fileIds });
+  await Message.create({ conversationId, text, fileIds });
 
-  if (convId) revalidatePath(`/chat/conversations/${convId}`);
+  revalidatePath(`/chat/conversations/${conversationId}`);
 
-  return {
-    conversationId: conv.id,
-    fileIds: fileIds.map((fileId) => fileId.toString()),
-  };
+  return { conversationId, fileIds };
 }

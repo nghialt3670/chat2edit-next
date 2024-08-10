@@ -8,8 +8,8 @@ interface LayoutStore {
 }
 
 const useLayoutStore = create<LayoutStore>((set) => ({
-  sidebarExpanded: false,
-  convBarExpanded: false,
+  sidebarExpanded: true,
+  convBarExpanded: true,
   toggleSidebar: () =>
     set((state) => ({
       sidebarExpanded: !state.sidebarExpanded,

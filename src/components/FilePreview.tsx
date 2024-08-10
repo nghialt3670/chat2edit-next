@@ -11,7 +11,7 @@ import {
   readFileAsDataURL,
 } from "@/utils/client/file";
 
-export default function FilePreview({
+export default function FormFile({
   fileId,
   loadingSize,
   imageWidth,
