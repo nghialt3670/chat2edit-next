@@ -5,10 +5,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import TempMessage from "@/models/TempMessage";
 import Conversation from "@/models/Conversation";
-import MessageList from "@/components/chat-box/MessageList";
 import TempConversation from "@/models/TempConversation";
-import { sendMessage } from "@/actions/sendMessage";
-import SendMessageRequest from "@/types/SendMessageRequest";
 import ChatBox from "@/components/chat-box/ChatBox";
 
 export default async function ConversationPage({

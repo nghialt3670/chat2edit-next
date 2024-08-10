@@ -22,16 +22,7 @@ export default function ChatLayout({
       <ConvBar>
         <ConvList />
       </ConvBar>
-      <AppBar>
-        <IconButton>
-            <Menu />
-          </IconButton>
-          <Link href="/chat">
-            <IconButton>
-              <SquarePlus />
-            </IconButton>
-          </Link>
-      </AppBar>
+      <AppBar />
       <main className="flex flex-col h-[calc(100%-5rem)]">{children}</main>
       <Footer />
     </div>

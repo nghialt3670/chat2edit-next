@@ -48,7 +48,6 @@ export default function AppBar() {
 
   return (
     <header className="h-14 flex flex-row items-center justify-between pl-2 pr-4">
-
     </header>
   );
 }
