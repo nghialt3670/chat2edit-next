@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import ReactMarkdown from "react-markdown";
+
 import getFile from "@/api/getFile";
 import { Skeleton } from "@mui/material";
 import useFileStore from "@/stores/FileStore";
@@ -94,7 +96,9 @@ export default function Message({
           </>
         ) : (
           <>
-            <p className="whitespace-pre-wrap">{text}</p>
+            <p className="whitespace-pre-wrap">
+              <ReactMarkdown>{text}</ReactMarkdown>
+            </p>
             {fileIds && (
               <div>
                 {fileIds.map((id) => (
