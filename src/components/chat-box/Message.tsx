@@ -96,7 +96,7 @@ export default function Message({
           <>
             <p className="whitespace-pre-wrap">{text}</p>
             {fileIds && (
-              <div className="mt-2">
+              <div>
                 {fileIds.map((id) => (
                   <MessageFile key={id} fileId={id} onReply={onFileReply!} />
                 ))}
