@@ -96,9 +96,7 @@ export default function Message({
           </>
         ) : (
           <>
-            <p className="whitespace-pre-wrap">
-              <ReactMarkdown>{text}</ReactMarkdown>
-            </p>
+            <ReactMarkdown>{text}</ReactMarkdown>
             {fileIds && (
               <div>
                 {fileIds.map((id) => (
