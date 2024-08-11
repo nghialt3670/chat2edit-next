@@ -10,7 +10,16 @@ import { Button, Divider, IconButton, Stack } from "@mui/material";
 import { Sidebar as SidebarIcon } from "lucide-react";
 
 import NavButton from "./NavButton";
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+  useUser,
+} from "@clerk/nextjs";
+import useUserStore from "@/stores/UserStore";
+import { readFileAsDataURL } from "@/utils/client/file";
 
 const NAV_ITEM_INFO = [
   {
@@ -35,6 +44,30 @@ export default function Sidebar() {
   const layoutStore = useLayoutStore();
   const widthStyle = layoutStore.sidebarExpanded ? "w-60" : "w-14";
   const pathname = usePathname();
+  const user = useUser();
+  const userStore = useUserStore();
+
+  useEffect(() => {
+    const updateUserStore = async () => {
+      if (!user.isLoaded) return;
+      if (!user.isSignedIn) {
+        userStore.setUserId(null);
+        userStore.setAvatarDataURL(null);
+        return;
+      }
+      if (!user.user) return;
+
+      const userId = user.user.id;
+      userStore.setUserId(userId);
+
+      const avatarURL = user.user.imageUrl;
+      const response = await fetch(avatarURL);
+      const blob = await response.blob();
+      const dataURL = await readFileAsDataURL(blob);
+      if (dataURL) userStore.setAvatarDataURL(dataURL.toString());
+    };
+    updateUserStore();
+  }, [user.isSignedIn]);
 
   useEffect(() => {
     if (pathname.startsWith("/chat")) setCurrPath("/chat");
@@ -52,7 +85,9 @@ export default function Sidebar() {
         <IconButton onClick={layoutStore.toggleSidebar}>
           <SidebarIcon />
         </IconButton>
-        <h1 className="w-inherit overflow-hidden ml-6 text-lg font-bold">Chat2Edit</h1>
+        <h1 className="w-inherit overflow-hidden ml-6 text-lg font-bold">
+          Chat2Edit
+        </h1>
       </div>
       <Divider sx={{ marginTop: 1, marginBottom: 1 }} />
       <nav className="flex flex-col w-inherit justify-center">
@@ -73,15 +108,18 @@ export default function Sidebar() {
           <SignedOut>
             <Stack direction="column">
               <SignInButton mode="modal" fallbackRedirectUrl={base_url}>
-                <Button color="primary" sx={{textWrap: "nowrap"}}>Log In</Button>
+                <Button color="primary" sx={{ textWrap: "nowrap" }}>
+                  Log In
+                </Button>
               </SignInButton>
               <SignUpButton mode="modal" fallbackRedirectUrl={base_url}>
-                <Button color="inherit" sx={{textWrap: "nowrap"}}>Sign Up</Button>
+                <Button color="inherit" sx={{ textWrap: "nowrap" }}>
+                  Sign Up
+                </Button>
               </SignUpButton>
             </Stack>
           </SignedOut>
-        )
-        }
+        )}
       </div>
       <div className="m-2 mb-0">
         <SignedIn>

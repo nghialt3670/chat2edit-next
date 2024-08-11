@@ -1,8 +1,8 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
-import { Menu, SquarePlus } from "lucide-react";
+import { Forward, Menu, SquarePlus } from "lucide-react";
 
 import Link from "next/link";
 import useUserStore from "@/stores/UserStore";
@@ -17,37 +17,33 @@ import {
   UserButton,
   useUser,
 } from "@clerk/nextjs";
+import ShareConvDialog from "./dialogs/ShareConvDialog";
+import { usePathname } from "next/navigation";
 
 export default function AppBar() {
-  const user = useUser();
-  const userStore = useUserStore();
+  const [open, setOpen] = useState<boolean>(false);
+  const pathname = usePathname();
 
-  useEffect(() => {
-    const updateUserStore = async () => {
-      if (!user.isLoaded) return;
-      if (!user.isSignedIn) {
-        userStore.setUserId(null);
-        userStore.setAvatarDataURL(null);
-        return;
-      }
-      if (!user.user) return;
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
 
-      const userId = user.user.id;
-      userStore.setUserId(userId);
+  const handleClose = () => {
+    setOpen(false);
+  };
 
-      const avatarURL = user.user.imageUrl;
-      const response = await fetch(avatarURL);
-      const blob = await response.blob();
-      const dataURL = await readFileAsDataURL(blob);
-      if (dataURL) userStore.setAvatarDataURL(dataURL.toString());
-    };
-    updateUserStore();
-  }, [user.isSignedIn]);
-
-  const base_url = process.env.NEXT_PUBLIC_BASE_URL;
+  const isInConversation = pathname.startsWith("/chat/conversations/")
 
   return (
-    <header className="h-14 flex flex-row items-center justify-between pl-2 pr-4">
+    <header className="h-14 flex flex-row items-center justify-end pl-2 pr-4">
+      {isInConversation && (
+        <>        
+          <IconButton onClick={handleClickOpen}>
+            <Forward />
+          </IconButton>
+          <ShareConvDialog open={open} handleClose={handleClose} />
+        </>
+      )}
     </header>
   );
 }

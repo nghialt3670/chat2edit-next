@@ -1,19 +1,20 @@
 "use client";
 
+import { useTransition } from "react";
+
 import { Trash2 } from "lucide-react";
 
 import Link from "next/link";
-import { CircularProgress, IconButton } from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
+import { CircularProgress, IconButton } from "@mui/material";
 import { deleteConversation } from "@/actions/deleteConversation";
-import { startTransition, useRef, useTransition } from "react";
 
 export default function ConvPreview({
   convId,
   title,
 }: {
   convId: string;
-  title: string;
+  title: string | null;
 }) {
   const router = useRouter();
   const pathname = usePathname();

@@ -12,7 +12,7 @@ export default function MessageList({
 }: {
   status: "Idle" | "Responding" | "Error";
   messages: Message[];
-  onFileReply: (fileId: string) => void;
+  onFileReply?: (fileId: string) => void;
 }) {
   const ref = useRef<HTMLUListElement>(null);
   if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;

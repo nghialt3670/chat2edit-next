@@ -2,9 +2,9 @@ import mongoose, { Document, Model, Schema } from "mongoose";
 
 export interface IConversation extends Document {
   userId: mongoose.Schema.Types.ObjectId;
-  title: string;
+  title: string | null;
   isError: boolean;
-  isShared: boolean;
+  shareId: string | null;
   createdAt: number;
   lastModified: number;
 }
@@ -15,9 +15,9 @@ const ConversationSchema: Schema<IConversation> = new Schema({
     ref: "User",
     required: true,
   },
-  title: { type: String },
+  title: { type: String, default: null },
   isError: { type: Boolean, default: false },
-  isShared: { type: Boolean, default: false },
+  shareId: { type: String, default: null },
   createdAt: { type: Number, default: Date.now, required: true },
   lastModified: { type: Number, default: Date.now, required: true },
 });

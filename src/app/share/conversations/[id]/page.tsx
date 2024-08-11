@@ -3,11 +3,11 @@ import Message from "@/models/Message";
 import IMessage from "@/types/Message";
 import { notFound } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
-import Conversation from "@/models/Conversation";
-import ChatBox from "@/components/chat-box/ChatBox";
 import connectToDatabase from "@/lib/mongo";
+import Conversation from "@/models/Conversation";
+import MessageList from "@/components/chat-box/MessageList";
 
-export default async function ConversationPage({
+export default async function SharedConversationPage({
   params,
 }: {
   params: { id: string };
@@ -20,12 +20,12 @@ export default async function ConversationPage({
   await connectToDatabase();
 
   const user = await User.findOne({ clerkId: userId });
-  if (!user) throw new Error("User not found");
+  if (!user) notFound();
 
-  const conv = await Conversation.findById(id);
-  if (!conv || String(conv.userId) !== user.id) notFound();
+  const conv = await Conversation.findOne({shareId: id});
+  if (!conv) notFound();
 
-  const messages: IMessage[] = (await Message.find({ conversationId: id })).map(
+  const messages: IMessage[] = (await Message.find({ conversationId: conv.id })).map(
     (msg, idx) => ({
       id: msg.id,
       type: idx % 2 == 0 ? "Request" : "Response",
@@ -34,5 +34,5 @@ export default async function ConversationPage({
     }),
   );
 
-  return <ChatBox messages={messages} />;
+  return <MessageList status="Idle" messages={messages} />;
 }
