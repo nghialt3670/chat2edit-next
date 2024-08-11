@@ -1,25 +1,21 @@
 "use client";
 
-import Message from "@/types/Message";
 import { useEffect, useOptimistic, useState } from "react";
-import MessageList from "./MessageList";
-import MessageForm from "./MessageForm";
+
+import Message from "@/types/Message";
 import useFileStore from "@/stores/FileStore";
 import { postMessage } from "@/actions/postMessage";
-import { useRouter } from "next/navigation";
 import { sendMessage } from "@/actions/sendMessage";
+import { usePathname, useRouter } from "next/navigation";
 
-export default function ChatBox({
-  conversationId,
-  messages,
-}: {
-  conversationId: string;
-  status: "Idle" | "Responding" | "Error";
-  messages: Message[];
-}) {
+import MessageList from "./MessageList";
+import MessageForm from "./MessageForm";
+
+export default function ChatBox({ messages }: { messages: Message[] }) {
   const [opMessages, setOpMessages] = useState<Message[]>([]);
   const [replyFileIds, setReplyFileIds] = useState<string[]>([]);
   const [status, setStatus] = useState<"Idle" | "Responding" | "Error">("Idle");
+  const pathname = usePathname();
   const fileStore = useFileStore();
   const router = useRouter();
 
@@ -31,21 +27,26 @@ export default function ChatBox({
     setReplyFileIds([]);
     setOpMessages((prev) => [...prev, message]);
     setTimeout(() => setStatus("Responding"), 500);
-    const { text, fileIds } = message;
-    const files = fileStore.getFiles(fileIds);
+
     const formData = new FormData();
-    formData.set("conversationId", conversationId);
-    formData.set("text", text);
+    if (pathname.startsWith("/chat/conversations/"))
+      formData.set("conversationId", pathname.split("/").pop()!);
+    formData.set("text", message.text);
+    const files = fileStore.getFiles(message.fileIds);
     files.forEach((file) => formData.set("files", file!));
-    const postMessageResponse = await postMessage(formData);
-    fileStore.updateIds(fileIds, postMessageResponse.fileIds);
-    if (!conversationId)
-      router.push(`/chat/conversations/${postMessageResponse.conversationId}`);
+
+    const { conversationId, fileIds } = await postMessage(formData);
+
+    fileStore.updateIds(message.fileIds, fileIds);
+    if (!pathname.endsWith(conversationId))
+      router.push(`/chat/conversations/${conversationId}`);
+
     const resMessage = await sendMessage({
-      conversationId: postMessageResponse.conversationId,
-      text,
-      fileIds: postMessageResponse.fileIds,
+      conversationId,
+      text: message.text,
+      fileIds,
     });
+
     if (resMessage) {
       setStatus("Idle");
       setOpMessages((prev) => [...prev, resMessage]);
