@@ -33,7 +33,6 @@ export default function ShareConvDialog({
     const updateShareId = async () => {
       if (!conversationId) return;
       const shareId = await getConvShareId(conversationId);
-      console.log(shareId);
       if (shareId) setShareId(shareId);
       else setShareId(undefined)
     };
@@ -82,10 +81,7 @@ export default function ShareConvDialog({
             </IconButton>
           </div>
         )}
-        {isCreating && (
-          <LinearProgress />
-        )}
-        {isDeleting && (
+        {(isCreating || isDeleting) && (
           <LinearProgress />
         )}
       </DialogContent>

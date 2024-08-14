@@ -27,7 +27,7 @@ export default function NavButton({
         className={`flex flex-row items-center rounded hover:${hoverColor} ${bgColor}`}
       >
         <IconButton disableRipple>{icon}</IconButton>
-        <span className="overflow-hidden opacity-60 font-semibold">{text}</span>
+        <span className="ml-1 overflow-hidden">{text}</span>
       </div>
     </Link>
   );

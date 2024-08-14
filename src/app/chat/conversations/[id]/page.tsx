@@ -3,9 +3,9 @@ import Message from "@/models/Message";
 import IMessage from "@/types/Message";
 import { notFound } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
+import connectToDatabase from "@/lib/mongo";
 import Conversation from "@/models/Conversation";
 import ChatBox from "@/components/chat-box/ChatBox";
-import connectToDatabase from "@/lib/mongo";
 
 export default async function ConversationPage({
   params,
