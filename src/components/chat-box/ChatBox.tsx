@@ -38,8 +38,7 @@ export default function ChatBox({ messages }: { messages: Message[] }) {
     const { conversationId, fileIds } = await postMessage(formData);
 
     fileStore.updateIds(message.fileIds, fileIds);
-    if (!pathname.endsWith(conversationId))
-      router.push(`/chat/conversations/${conversationId}`);
+    window.history.replaceState({}, '', `/chat/conversations/${conversationId}`)
 
     const resMessage = await sendMessage({
       conversationId,
