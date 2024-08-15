@@ -29,6 +29,8 @@ export default async function ConvList() {
     await Conversation.find({ userId: user.id })
   ).reverse();
 
+  console.log(conversations.length);
+
   const groupedConvs: Record<string, IConversation[]> = {};
   conversations.forEach((conv) => {
     const date = format(new Date(conv.lastModified), "yyyy-MM-dd");

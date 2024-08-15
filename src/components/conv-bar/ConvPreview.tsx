@@ -24,7 +24,6 @@ export default function ConvPreview({
     startDeleting(async () => {
       await deleteConversation(convId);
     });
-    if (pathname.endsWith(convId)) router.push("/chat");
   };
 
   const isSelected = pathname.endsWith(convId);

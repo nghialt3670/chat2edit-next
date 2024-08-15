@@ -10,6 +10,7 @@ import Conversation from "@/models/Conversation";
 import { deleteFilesFromGridFS } from "@/lib/gridfs";
 import { GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME } from "@/config/db";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function deleteConversation(conversationId: string) {
   await connectToDatabase();
@@ -38,6 +39,5 @@ export async function deleteConversation(conversationId: string) {
   const bucketName = GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME;
   await deleteFilesFromGridFS(fileIds, mongoose.connection, bucketName);
 
-  revalidatePath(`/chat`);
-  revalidatePath(`/chat/${conversationId}`);
+  redirect(`/chat`);
 }
