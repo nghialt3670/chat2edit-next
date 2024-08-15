@@ -47,7 +47,7 @@ export default function ConvPreview({
           </IconButton>
         )}
       </div>
-      <Link key={convId} href={`/chat/conversations/${convId}`}>
+      <Link key={convId} href={`/chat/${convId}`}>
         <div className="flex w-52 h-12 items-center opacity-80 text-nowrap overflow-hidden">
           <span className="truncate p-2">{title}</span>
         </div>

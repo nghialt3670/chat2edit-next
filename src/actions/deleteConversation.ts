@@ -39,5 +39,5 @@ export async function deleteConversation(conversationId: string) {
   await deleteFilesFromGridFS(fileIds, mongoose.connection, bucketName);
 
   revalidatePath(`/chat`);
-  revalidatePath(`/chat/conversation/${conversationId}`);
+  revalidatePath(`/chat/${conversationId}`);
 }

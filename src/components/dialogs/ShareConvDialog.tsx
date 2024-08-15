@@ -25,7 +25,7 @@ export default function ShareConvDialog({
   const [isCreating, startCreating] = useTransition();
   const [isDeleting, startDeleting] = useTransition();
   
-  const conversationId = pathname.startsWith("/chat/conversations/")
+  const conversationId = pathname.startsWith("/chat/")
     ? pathname.split("/").pop()
     : "";
   

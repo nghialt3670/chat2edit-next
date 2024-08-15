@@ -4,7 +4,6 @@ import mongoose from "mongoose";
 
 import User from "@/models/User";
 import Message from "@/models/Message";
-import { redirect } from "next/navigation";
 import connectToDatabase from "@/lib/mongo";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
@@ -46,7 +45,7 @@ export async function postMessage(
 
   await Message.create({ conversationId, text, fileIds });
 
-  revalidatePath(`/chat/conversations/${conversationId}`);
+  revalidatePath(`/chat/${conversationId}`);
 
   return { conversationId, fileIds };
 }

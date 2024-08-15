@@ -52,7 +52,7 @@ export async function sendMessage(
 
   if (!response.ok) {
     await conv.updateOne({ isError: true });
-    revalidatePath(`/chat/conversations/${conversationId}`);
+    revalidatePath(`/chat/${conversationId}`);
     return null;
   }
 
@@ -69,7 +69,7 @@ export async function sendMessage(
     lastModified: Date.now(),
   });
 
-  revalidatePath(`/chat/conversations/${conversationId}`);
+  revalidatePath(`/chat/${conversationId}`);
 
   return {
     id: resMessage.id,

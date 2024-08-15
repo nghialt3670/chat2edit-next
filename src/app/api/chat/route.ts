@@ -11,6 +11,6 @@ export async function POST(req: Request) {
   });
   await new Promise((resolve) => setTimeout(resolve, 3000));
   console.log("hhsdfksd");
-  revalidatePath("/chat/conversations");
+  revalidatePath("/chat");
   return NextResponse.json({});
 }

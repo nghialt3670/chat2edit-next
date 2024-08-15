@@ -29,7 +29,7 @@ export default function ChatBox({ messages }: { messages: Message[] }) {
     setTimeout(() => setStatus("Responding"), 500);
 
     const formData = new FormData();
-    if (pathname.startsWith("/chat/conversations/"))
+    if (pathname.startsWith("/chat/"))
       formData.set("conversationId", pathname.split("/").pop()!);
     formData.set("text", message.text);
     const files = fileStore.getFiles(message.fileIds);
@@ -38,7 +38,7 @@ export default function ChatBox({ messages }: { messages: Message[] }) {
     const { conversationId, fileIds } = await postMessage(formData);
 
     fileStore.updateIds(message.fileIds, fileIds);
-    window.history.replaceState({}, '', `/chat/conversations/${conversationId}`)
+    window.history.replaceState({}, '', `/chat/${conversationId}`)
 
     const resMessage = await sendMessage({
       conversationId,

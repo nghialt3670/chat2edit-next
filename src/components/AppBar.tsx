@@ -32,7 +32,7 @@ export default function AppBar() {
     setOpen(false);
   };
 
-  const isInConversation = pathname.startsWith("/chat/conversations/")
+  const isInConversation = pathname.startsWith("/chat/")
 
   return (
     <header className="h-14 flex flex-row items-center justify-end pl-2 pr-4">
