@@ -1,44 +1,44 @@
 export function getBaseName(filename: string): string {
-  const fileNameParts = filename.split(".");
-  fileNameParts.pop();
-  return fileNameParts.join(".");
+  const fileNameParts = filename.split('.')
+  fileNameParts.pop()
+  return fileNameParts.join('.')
 }
 
 export function getExtension(filename: string): string {
-  return filename.split(".").pop() || "";
+  return filename.split('.').pop() || ''
 }
 
 export async function readFileAsDataURL(
-  file: File | Blob,
+  file: File | Blob
 ): Promise<string | ArrayBuffer | null> {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
-  });
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(file)
+  })
 }
 
 export async function readFileAsText(
-  file: File | Blob,
+  file: File | Blob
 ): Promise<string | ArrayBuffer | null> {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(reader.error);
-    reader.readAsText(file);
-  });
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = () => reject(reader.error)
+    reader.readAsText(file)
+  })
 }
 
 export function getFilenameFromContentDisposition(
-  contentDisposition: string,
+  contentDisposition: string
 ): string | null {
-  const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-  const matches = filenameRegex.exec(contentDisposition);
+  const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+  const matches = filenameRegex.exec(contentDisposition)
 
   if (matches != null && matches[1]) {
-    const filename = matches[1].replace(/['"]/g, "");
-    return filename;
+    const filename = matches[1].replace(/['"]/g, '')
+    return filename
   }
-  return null;
+  return null
 }

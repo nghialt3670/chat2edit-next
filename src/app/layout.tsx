@@ -1,32 +1,37 @@
-import type, { Metadata } from "next";
+import type { Metadata } from 'next'
 
-import { Inter } from "next/font/google";
-import Sidebar from "@/components/side-bar/Sidebar";
-import { ClerkProvider } from "@clerk/nextjs";
+import { Inter } from 'next/font/google'
+import { ClerkProvider } from '@clerk/nextjs'
+import { Providers } from '@/components/providers'
 
-import "./globals.css";
+import '@radix-ui/themes/styles.css'
 
-const inter = Inter({ subsets: ["latin"] });
+import './globals.css'
+import AppBar from '@/components/app-bar'
+import { Separator } from '@radix-ui/themes'
+
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: "Chat2Edit",
-};
+  title: 'Chat2Edit'
+}
 
 export default function RootLayout({
-  children,
+  children
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" suppressHydrationWarning>
         <body className={inter.className}>
-          <div className="md:absolute w-14 h-full"></div>
-          <Sidebar />
-          <div className="w-1 bg-slate-400"></div>
-          <div className="w-full">{children}</div>
+          <Providers attribute="class">
+            <AppBar />
+            <Separator orientation="horizontal" />
+            {children}
+          </Providers>
         </body>
       </html>
     </ClerkProvider>
-  );
+  )
 }

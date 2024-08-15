@@ -1,27 +1,27 @@
-"use client";
+'use client'
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from 'react'
 
-import { Download, Upload } from "lucide-react";
-import { Canvas as FabricCanvas, FabricImage, FabricObject } from "fabric";
+import { Download, Upload } from 'lucide-react'
+import { Canvas as FabricCanvas, FabricImage, FabricObject } from 'fabric'
 
-import useFileStore from "@/stores/FileStore";
-import { CircularProgress, IconButton } from "@mui/material";
-import { readFileAsDataURL, readFileAsText } from "@/utils/client/file";
+import useFileStore from '@/stores/FileStore'
+import { CircularProgress, IconButton } from '@mui/material'
+import { readFileAsDataURL, readFileAsText } from '@/utils/client/file'
 
 export default function Canvas({ fileId }: { fileId?: string }) {
-  const canvasElementRef = useRef<HTMLCanvasElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const fabricCanvasRef = useRef<FabricCanvas>();
-  const fileStore = useFileStore();
+  const canvasElementRef = useRef<HTMLCanvasElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const fabricCanvasRef = useRef<FabricCanvas>()
+  const fileStore = useFileStore()
   const [selectedObject, setSelectedObject] = useState<FabricObject | null>(
-    null,
-  );
-  const [file, setFile] = useState<File>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+    null
+  )
+  const [file, setFile] = useState<File>()
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
-  const canvasWidth = screen.width * 0.7;
-  const canvasHeight = screen.height * 0.7;
+  const canvasWidth = screen.width * 0.7
+  const canvasHeight = screen.height * 0.7
 
   // useEffect(() => {
   //   const getAndSetFile = async () => {
@@ -37,50 +37,50 @@ export default function Canvas({ fileId }: { fileId?: string }) {
       if (canvasElementRef.current) {
         fabricCanvasRef.current = new FabricCanvas(canvasElementRef.current, {
           width: canvasWidth,
-          height: canvasHeight,
-        });
+          height: canvasHeight
+        })
       }
 
       if (fileId && fabricCanvasRef.current) {
-        const file = fileStore.getFile(fileId);
-        if (!file) return;
+        const file = fileStore.getFile(fileId)
+        if (!file) return
 
-        if (file.type.startsWith("image/")) {
-          const dataURL = await readFileAsDataURL(file);
+        if (file.type.startsWith('image/')) {
+          const dataURL = await readFileAsDataURL(file)
           if (dataURL)
             fabricCanvasRef.current.backgroundImage = await FabricImage.fromURL(
-              dataURL.toString(),
-            );
-        } else if (file.name.endsWith(".canvas")) {
-          const json = await readFileAsText(file);
-          if (json) await fabricCanvasRef.current.loadFromJSON(json);
+              dataURL.toString()
+            )
+        } else if (file.name.endsWith('.canvas')) {
+          const json = await readFileAsText(file)
+          if (json) await fabricCanvasRef.current.loadFromJSON(json)
         } else {
-          return;
+          return
         }
 
-        const backgroundImage = fabricCanvasRef.current.backgroundImage;
+        const backgroundImage = fabricCanvasRef.current.backgroundImage
         if (backgroundImage) {
           const zoomRatio =
             fabricCanvasRef.current.getWidth() /
-            backgroundImage.getScaledWidth();
-          fabricCanvasRef.current.setZoom(zoomRatio);
+            backgroundImage.getScaledWidth()
+          fabricCanvasRef.current.setZoom(zoomRatio)
           fabricCanvasRef.current.setHeight(
-            backgroundImage.getScaledHeight() * zoomRatio,
-          );
+            backgroundImage.getScaledHeight() * zoomRatio
+          )
         }
 
-        fabricCanvasRef.current.renderAll();
-        setIsLoading(false);
+        fabricCanvasRef.current.renderAll()
+        setIsLoading(false)
       }
-    };
+    }
 
     const disposeFabric = () => {
-      if (fabricCanvasRef.current) fabricCanvasRef.current.dispose();
-    };
+      if (fabricCanvasRef.current) fabricCanvasRef.current.dispose()
+    }
 
-    initFabricCanvas();
-    return disposeFabric;
-  }, [file]);
+    initFabricCanvas()
+    return disposeFabric
+  }, [file])
 
   const handleAddImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
     // if (!fabricCanvasRef.current) return;
@@ -97,28 +97,28 @@ export default function Canvas({ fileId }: { fileId?: string }) {
     //   backgroundImage.getScaledHeight() * zoomRatio,
     // );
     // fabricCanvasRef.current.renderAll();
-  };
+  }
 
   const handleRemoveObject = () => {
     if (fabricCanvasRef.current && selectedObject) {
-      fabricCanvasRef.current.remove(selectedObject);
-      setSelectedObject(null);
+      fabricCanvasRef.current.remove(selectedObject)
+      setSelectedObject(null)
     }
-  };
+  }
 
   const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
+    fileInputRef.current?.click()
+  }
 
   const handleDownloadClick = () => {
     if (fabricCanvasRef.current) {
-      const dataURL = fabricCanvasRef.current.toDataURL();
-      const link = document.createElement("a");
-      link.href = dataURL;
-      link.download = fabricCanvasRef.current.backgroundImage?.get("filename");
-      link.click();
+      const dataURL = fabricCanvasRef.current.toDataURL()
+      const link = document.createElement('a')
+      link.href = dataURL
+      link.download = fabricCanvasRef.current.backgroundImage?.get('filename')
+      link.click()
     }
-  };
+  }
 
   return (
     <div className="flex flex-col bg-slate-500">
@@ -128,7 +128,7 @@ export default function Canvas({ fileId }: { fileId?: string }) {
           accept="image/*"
           onChange={handleAddImage}
           ref={fileInputRef}
-          style={{ display: "none" }}
+          style={{ display: 'none' }}
         />
         <IconButton onClick={handleUploadClick}>
           <Upload />
@@ -142,5 +142,5 @@ export default function Canvas({ fileId }: { fileId?: string }) {
         {isLoading && <CircularProgress disableShrink />}
       </canvas>
     </div>
-  );
+  )
 }

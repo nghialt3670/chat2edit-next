@@ -1,43 +1,41 @@
-"use server";
+'use server'
 
-import mongoose from "mongoose";
+import mongoose from 'mongoose'
 
-import User from "@/models/User";
-import Message from "@/models/Message";
-import connectToDatabase from "@/lib/mongo";
-import { auth } from "@clerk/nextjs/server";
-import Conversation from "@/models/Conversation";
-import { deleteFilesFromGridFS } from "@/lib/gridfs";
-import { GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME } from "@/config/db";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import User from '@/models/User'
+import Message from '@/models/Message'
+import connectToDatabase from '@/lib/mongo'
+import { auth } from '@clerk/nextjs/server'
+import Conversation from '@/models/Conversation'
+import { deleteFilesFromGridFS } from '@/lib/gridfs'
+import { GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME } from '@/config/db'
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 
 export async function deleteConversation(conversationId: string) {
-  await connectToDatabase();
+  await connectToDatabase()
 
-  const { userId } = auth();
+  const { userId } = auth()
 
-  const user = await User.findOne({ clerkId: userId });
-  if (!user) throw new Error("User not found");
+  const user = await User.findOne({ clerkId: userId })
+  if (!user) throw new Error('User not found')
 
   const conv = await Conversation.findOne({
     _id: conversationId,
-    userId: user.id,
-  });
-  if (!conv) throw new Error("Conversation not found");
+    userId: user.id
+  })
+  if (!conv) throw new Error('Conversation not found')
 
-  await conv.deleteOne();
+  await conv.deleteOne()
 
-  const messages = await Message.find({ conversationId });
-  await Promise.all(messages.map(async (message) => await message.deleteOne()));
+  const messages = await Message.find({ conversationId })
+  await Promise.all(messages.map(async message => await message.deleteOne()))
 
-  const fileIds = messages.flatMap((message) =>
-    message.fileIds.map(
-      (fileId) => new mongoose.Types.ObjectId(String(fileId)),
-    ),
-  );
-  const bucketName = GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME;
-  await deleteFilesFromGridFS(fileIds, mongoose.connection, bucketName);
+  const fileIds = messages.flatMap(message =>
+    message.fileIds.map(fileId => new mongoose.Types.ObjectId(String(fileId)))
+  )
+  const bucketName = GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME
+  await deleteFilesFromGridFS(fileIds, mongoose.connection, bucketName)
 
-  redirect(`/chat`);
+  redirect(`/chat`)
 }

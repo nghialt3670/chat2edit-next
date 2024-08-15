@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import ChatBox from "@/components/chat-box/ChatBox";
+import ChatBox from '@/components/chat-box'
 
 export default function ChatPage() {
-  return <ChatBox messages={[]} />;
+  return <div></div>
 }

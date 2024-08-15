@@ -2,18 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
 body {
   position: fixed;
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: 100vh;
   width: 100%;
   padding: 0px;
   margin: 0px;
 }
 
-body {
-  display: flex;
-  flex-direction: row;
-  box-sizing: border-box;
-  background-color: #bdcdd6;
+button:hover {
+  cursor: pointer;
 }

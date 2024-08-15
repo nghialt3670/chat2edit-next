@@ -1,37 +1,37 @@
-import { Download, Edit, Reply } from "lucide-react";
+import { Download, Edit, Reply } from 'lucide-react'
 
-import { useRouter } from "next/navigation";
-import useFileStore from "@/stores/FileStore";
-import { CircularProgress, IconButton } from "@mui/material";
+import { useRouter } from 'next/navigation'
+import useFileStore from '@/stores/FileStore'
+import { CircularProgress, IconButton } from '@mui/material'
 
 export default function MessageFile({
   fileId,
-  onReply,
+  onReply
 }: {
-  fileId: string;
-  onReply: (fileId: string) => void;
+  fileId: string
+  onReply: (fileId: string) => void
 }) {
-  const router = useRouter();
-  const fileStore = useFileStore();
+  const router = useRouter()
+  const fileStore = useFileStore()
 
-  const file = fileStore.getFile(fileId);
+  const file = fileStore.getFile(fileId)
   if (!file) {
-    return <div>Error</div>;
+    return <div>Error</div>
   }
 
   const isImage =
-    file.type.startsWith("image/") || file.name.endsWith(".canvas");
+    file.type.startsWith('image/') || file.name.endsWith('.canvas')
 
   const handleEditClick = () => {
-    if (isImage) router.push(`/edit/canvas/${fileId}`);
-  };
+    if (isImage) router.push(`/edit/canvas/${fileId}`)
+  }
 
   const renderFile = () => {
     if (isImage) {
-      const imgDataURL = fileStore.getDataURL(fileId);
+      const imgDataURL = fileStore.getDataURL(fileId)
 
       if (!imgDataURL) {
-        return <div>Error</div>;
+        return <div>Error</div>
       }
       return (
         <div className="flex justify-center items-center rounded-xl overflow-hidden shadow-[1px_2px_5px_1px_rgba(0,0,0,0.3)]">
@@ -41,10 +41,10 @@ export default function MessageFile({
             <CircularProgress size={28} disableShrink />
           )}
         </div>
-      );
+      )
     }
-    return <div>Other</div>;
-  };
+    return <div>Other</div>
+  }
 
   return (
     <div className="w-64 rounded-2xl">
@@ -63,5 +63,5 @@ export default function MessageFile({
       </div>
       {renderFile()}
     </div>
-  );
+  )
 }

@@ -1,6 +1,6 @@
 export default interface Message {
-  id: string;
-  type: "Request" | "Response";
-  text: string;
-  fileIds: string[];
+  id: string
+  type: 'Request' | 'Response'
+  text: string
+  fileIds: string[]
 }
