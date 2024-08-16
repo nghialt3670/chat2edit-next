@@ -1,4 +1,4 @@
 export default interface PostMessageResponse {
-  conversationId: string
-  fileIds: string[]
+  conversationId: string;
+  fileIds: string[];
 }

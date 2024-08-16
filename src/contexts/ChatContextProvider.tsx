@@ -1,38 +1,38 @@
-import React, { ReactNode, useState } from 'react'
-import MessagesContext from './MessagesContext'
+import React, { ReactNode, useState } from "react";
+import MessagesContext from "./MessagesContext";
 
 interface ChatContextProviderProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 const ChatContextProvider: React.FC<ChatContextProviderProps> = ({
-  children
+  children,
 }) => {
   // Define the state and methods you want to provide here
-  const [messages, setMessages] = useState<string[]>([])
+  const [messages, setMessages] = useState<string[]>([]);
 
   // Example function to add a message
   const addMessage = (message: string) => {
-    setMessages(prevMessages => [...prevMessages, message])
-  }
+    setMessages((prevMessages) => [...prevMessages, message]);
+  };
 
   // Example function to clear all messages
   const clearMessages = () => {
-    setMessages([])
-  }
+    setMessages([]);
+  };
 
   // Provide context value
   const contextValue = {
     messages,
     addMessage,
-    clearMessages
-  }
+    clearMessages,
+  };
 
   return (
     <MessagesContext.Provider value={contextValue}>
       {children}
     </MessagesContext.Provider>
-  )
-}
+  );
+};
 
-export default ChatContextProvider
+export default ChatContextProvider;

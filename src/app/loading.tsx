@@ -1,10 +1,10 @@
-import { Spinner } from '@radix-ui/themes'
-import React from 'react'
+import { CircularProgress } from "@mui/material";
+import React from "react";
 
-export default function ConversationLoading() {
+export default function RootLoading() {
   return (
-    <div className="size-full flex justify-center items-center">
-      <Spinner size="3" />
-    </div>
-  )
+    <main className="flex justify-center items-center size-full">
+      <CircularProgress color="inherit" />
+    </main>
+  );
 }

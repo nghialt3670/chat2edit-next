@@ -1,13 +1,13 @@
-import type { Metadata } from 'next'
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Edit with AI'
-}
+  title: "Edit with AI",
+};
 
 export default function EditLayout({
-  children
+  children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
-  return <div className="size-full bg-[#BDCDD6]">{children}</div>
+  return <div className="size-full bg-[#BDCDD6]">{children}</div>;
 }

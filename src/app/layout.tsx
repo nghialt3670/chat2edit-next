@@ -1,25 +1,25 @@
-import type { Metadata } from 'next'
+import type { Metadata } from "next";
 
-import { Inter } from 'next/font/google'
-import { ClerkProvider } from '@clerk/nextjs'
-import { Providers } from '@/components/providers'
+import { Inter } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
+import { Providers } from "@/components/providers";
 
-import '@radix-ui/themes/styles.css'
+import "@radix-ui/themes/styles.css";
 
-import './globals.css'
-import AppBar from '@/components/app-bar'
-import { Separator } from '@radix-ui/themes'
+import "./globals.css";
+import AppBar from "@/components/app-bar";
+import { Separator } from "@radix-ui/themes";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Chat2Edit'
-}
+  title: "Chat2Edit",
+};
 
 export default function RootLayout({
-  children
+  children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <ClerkProvider>
@@ -33,5 +33,5 @@ export default function RootLayout({
         </body>
       </html>
     </ClerkProvider>
-  )
+  );
 }

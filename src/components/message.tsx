@@ -1,112 +1,60 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
+import ReactMarkdown from "react-markdown";
 
-import ReactMarkdown from 'react-markdown'
-
-import getFile from '@/api/getFile'
-import { Skeleton } from '@mui/material'
-import useFileStore from '@/stores/FileStore'
-import { readFileAsDataURL } from '@/utils/client/file'
-import { createCanvasFromFile } from '@/utils/client/fabric'
-
-import MessageFile from './MessageFile'
-import MessageAvatar from './MessageAvatar'
+import IMessage from "@/types/Message";
+import MessageFilePreview from "./message-file-preview";
+import useUserStore from "@/stores/user-store";
+import { Skeleton } from "@/components/ui/skeleton";
+import { BotMessageSquare, CircleUserRound } from "lucide-react";
 
 export default function Message({
   type,
-  text,
-  fileIds,
-  isResponding,
-  isError,
-  onFileReply
+  message,
 }: {
-  type: 'Request' | 'Response'
-  text?: string
-  fileIds?: string[]
-  isResponding?: boolean
-  isError?: boolean
-  onFileReply?: (fileId: string) => void
+  type: "Request" | "Response" | "Anonymous";
+  message: IMessage | null | undefined;
 }) {
-  const [isLoading, setIsLoading] = useState<boolean>(
-    (fileIds?.length ?? 0) > 0
-  )
-  const fileStore = useFileStore()
+  const { avatarDataURL } = useUserStore();
 
-  useEffect(() => {
-    const updateFiles = async () => {
-      if (!fileIds) return
-      if (fileStore.contains(fileIds[0])) {
-        setIsLoading(false)
-        return
-      }
-      const files = await Promise.all(
-        fileIds.map(async id => await getFile(id))
-      )
+  const renderAvatar = () => {
+    if (type === "Request" && avatarDataURL)
+      return <img className="size-7 rounded-full" src={avatarDataURL} alt="" />;
 
-      const successFiles: File[] = []
-      const successFileIds: string[] = []
-      const imageFileIds: string[] = []
-      const imageDataURLs: string[] = []
+    if (type === "Response") return <BotMessageSquare className="size-7" />;
 
-      await Promise.all(
-        files.map(async (file, idx) => {
-          if (!file) return
-          successFiles.push(file)
-          successFileIds.push(fileIds[idx])
-          const isImage = file.type.startsWith('image/')
-          const isCanvas = file.name.endsWith('.canvas')
-          if (!isImage && !isCanvas) return
+    return <CircleUserRound className="size-7" />;
+  };
 
-          let dataURL
-          if (isImage) dataURL = await readFileAsDataURL(file)
-          else if (isCanvas) {
-            const canvas = await createCanvasFromFile(file)
-            dataURL = canvas?.toDataURL()
-          }
-          if (dataURL) {
-            imageFileIds.push(fileIds[idx])
-            imageDataURLs.push(dataURL.toString())
-          }
-        })
-      )
+  const renderContent = () => {
+    if (message)
+      return (
+        <div className="w-11/12 ml-4 mt-0.5">
+          <ReactMarkdown>{message.text}</ReactMarkdown>
+          <div>
+            {message.fileIds.map((id) => (
+              <MessageFilePreview key={id} fileId={id} />
+            ))}
+          </div>
+        </div>
+      );
 
-      fileStore.addFiles(successFileIds, successFiles)
-      fileStore.addDataURLs(imageFileIds, imageDataURLs)
-      setIsLoading(false)
-    }
-    updateFiles()
-  }, [fileIds])
+    if (message === undefined)
+      return (
+        <div className="w-11/12 ml-4 mt-0.5 space-y-3">
+          <Skeleton className="w-full h-4 rounded" />
+          <Skeleton className="w-full h-4 rounded" />
+          <Skeleton className="w-full h-4 rounded" />
+        </div>
+      );
 
-  if (isError) {
-    return <div>isError</div>
-  }
+    return null;
+  };
 
   return (
     <li className="flex flex-row md:w-1/2 w-11/12 mt-5 mb-5">
-      <div className="size-10">
-        <MessageAvatar type={type} />
-      </div>
-      <div className="w-11/12 mt-0.5">
-        {isResponding || isLoading ? (
-          <>
-            <Skeleton />
-            <Skeleton />
-            <Skeleton />
-          </>
-        ) : (
-          <>
-            <ReactMarkdown>{text}</ReactMarkdown>
-            {fileIds && (
-              <div>
-                {fileIds.map(id => (
-                  <MessageFile key={id} fileId={id} onReply={onFileReply!} />
-                ))}
-              </div>
-            )}
-          </>
-        )}
-      </div>
+      {renderAvatar()}
+      {renderContent()}
     </li>
-  )
+  );
 }

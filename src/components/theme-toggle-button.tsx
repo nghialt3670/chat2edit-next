@@ -1,30 +1,30 @@
-import { Moon, Sun } from 'lucide-react'
+import { Moon, Sun } from "lucide-react";
 
-import { IconButton } from '@mui/material'
-import { useTheme } from 'next-themes'
-import { ComponentProps } from 'react'
+import { useTheme } from "next-themes";
+import { ComponentProps } from "react";
+import IconButton from "./icon-button";
 
 export default function ThemeToggleButton({
   className,
-  iconSize
-}: ComponentProps<'button'> & { iconSize: number }) {
-  const { theme, setTheme } = useTheme()
+  iconSize,
+}: ComponentProps<"button"> & { iconSize?: number }) {
+  const { theme, setTheme } = useTheme();
 
   const handleToggleTheme = () => {
-    if (theme == 'light') setTheme('dark')
-    else setTheme('light')
-  }
+    if (theme == "light") setTheme("dark");
+    else setTheme("light");
+  };
 
   const icon =
-    theme === 'dark' ? <Moon size={iconSize} /> : <Sun size={iconSize} />
+    theme === "dark" ? (
+      <Moon size={iconSize || 20} />
+    ) : (
+      <Sun size={iconSize || 20} />
+    );
 
   return (
-    <IconButton
-      className={className}
-      color="inherit"
-      onClick={handleToggleTheme}
-    >
+    <IconButton className={className} onClick={handleToggleTheme}>
       {icon}
     </IconButton>
-  )
+  );
 }

@@ -1,7 +1,7 @@
-import { Button } from '@mui/material'
-import { CirclePlus } from 'lucide-react'
-import Link from 'next/link'
-import React from 'react'
+import { Button } from "@mui/material";
+import { CirclePlus } from "lucide-react";
+import Link from "next/link";
+import React from "react";
 
 export default function ConversationNotFound() {
   return (
@@ -13,5 +13,5 @@ export default function ConversationNotFound() {
         </Button>
       </Link>
     </div>
-  )
+  );
 }
