@@ -4,7 +4,7 @@ import React from "react";
 export default function CanvasLoading() {
   return (
     <div className="size-full flex justify-center items-center">
-      <CircularProgress disableShrink />
+      <CircularProgress color="inherit" />
     </div>
   );
 }

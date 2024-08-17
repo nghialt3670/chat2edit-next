@@ -1,3 +1,4 @@
+import EditSidebar from "@/components/edit-sidebar";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -9,5 +10,10 @@ export default function EditLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <div className="size-full bg-[#BDCDD6]">{children}</div>;
+  return (
+    <main className="relative w-full h-[calc(100vh-3.5rem)]">
+      <EditSidebar />
+      {children}        
+    </main>
+  )
 }

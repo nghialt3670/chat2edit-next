@@ -1,4 +1,4 @@
-import Canvas from "@/components/canvas/Canvas";
+import Canvas from "@/components/canvas";
 import React from "react";
 
 export default function CanvasEditPage({ params }: { params: { id: string } }) {

@@ -6,24 +6,31 @@ import IMessage from "@/types/Message";
 import MessageFilePreview from "./message-file-preview";
 import useUserStore from "@/stores/user-store";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BotMessageSquare, CircleUserRound } from "lucide-react";
+import { AlertCircle, BotMessageSquare, CircleUserRound } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import IconButton from "./icon-button";
+import { Button } from "./ui/button";
 
 export default function Message({
-  type,
   message,
+  onRetry,
 }: {
-  type: "Request" | "Response" | "Anonymous";
   message: IMessage | null | undefined;
+  onRetry?: () => void;
 }) {
   const { avatarDataURL } = useUserStore();
 
   const renderAvatar = () => {
-    if (type === "Request" && avatarDataURL)
-      return <img className="size-7 rounded-full" src={avatarDataURL} alt="" />;
+    if (!message) return <BotMessageSquare className="size-7" />;
 
-    if (type === "Response") return <BotMessageSquare className="size-7" />;
+    if (message.type === "Request")
+      return avatarDataURL ? (
+        <img className="size-7 rounded-full" src={avatarDataURL} alt="" />
+      ) : (
+        <CircleUserRound className="size-7" />
+      );
 
-    return <CircleUserRound className="size-7" />;
+    return <BotMessageSquare className="size-7" />;
   };
 
   const renderContent = () => {
@@ -48,7 +55,20 @@ export default function Message({
         </div>
       );
 
-    return null;
+    return (
+      <Alert className="ml-4" variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>
+          Something went wrong while processing your request.
+        </AlertDescription>
+        <div>
+          <Button className="p-2" variant="outline" onClick={onRetry}>
+            Try Again
+          </Button>
+        </div>
+      </Alert>
+    );
   };
 
   return (

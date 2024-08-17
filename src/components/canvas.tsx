@@ -20,8 +20,8 @@ export default function Canvas({ fileId }: { fileId?: string }) {
   const [file, setFile] = useState<File>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const canvasWidth = screen.width * 0.7;
-  const canvasHeight = screen.height * 0.7;
+  const canvasWidth = 1200
+  const canvasHeight = 600
 
   // useEffect(() => {
   //   const getAndSetFile = async () => {
@@ -121,7 +121,7 @@ export default function Canvas({ fileId }: { fileId?: string }) {
   };
 
   return (
-    <div className="flex flex-col bg-slate-500">
+    <div className="flex flex-col">
       <div>
         <input
           type="file"

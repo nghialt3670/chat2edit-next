@@ -1,80 +1,116 @@
 "use server";
 
+import mongoose from "mongoose";
+
 import User from "@/models/User";
 import Message from "@/models/Message";
 import connectToDatabase from "@/lib/mongo";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import Conversation from "@/models/Conversation";
-import SendMessageRequest from "@/types/SendMessageRequest";
+import { uploadFilesToGridFS } from "@/lib/gridfs";
 import { GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME } from "@/config/db";
 import IMessage from "@/types/Message";
-import mongoose from "mongoose";
 
-interface ChatResponse {
+interface SendMessageResponse {
+  conversationId?: string;
+  fileIds?: string[];
+  message?: IMessage;
+}
+
+export interface ChatResponse {
   text: string;
   file_ids: string[];
 }
 
-export async function sendMessage(
-  request: SendMessageRequest,
-): Promise<IMessage | null> {
-  await connectToDatabase();
+export default async function sendMessage(
+  formData: FormData,
+): Promise<SendMessageResponse> {
+  let finalResponse: SendMessageResponse = {};
+  let conv;
 
-  const { userId } = auth();
-  const { conversationId, text, fileIds } = request;
-
-  const user = await User.findOne({ clerkId: userId });
-  if (!user) throw new Error("User not created");
-
-  const conv = await Conversation.findOne({
-    _id: conversationId,
-    userId: user.id,
-  });
-  if (!conv) throw new Error("Conversation not created");
-
+  const convId = formData.get("conversationId") as string;
+  const text = formData.get("text") as string;
+  const files = (formData.getAll("files") as File[]) || [];
   const bucketName = GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME;
-  const endpoint = `${process.env.CHAT_SERVICE_BASE_URL}/api/v1/chat`;
-  const reqBody = JSON.stringify({
-    conversation_id: conversationId,
-    text,
-    file_ids: fileIds,
-    bucket_name: bucketName,
-  });
+  
+  try {
+    await connectToDatabase();
+    
+    if (!text) throw new Error("Text is required");
 
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: reqBody,
-  });
+    const { userId } = auth();
+    let user = await User.findOne({ clerkId: userId });
+    if (!user) throw new Error("User not created");
 
-  if (!response.ok) {
-    await conv.updateOne({ isError: true });
-    revalidatePath(`/chat/${conversationId}`);
-    return null;
+    conv = convId
+      ? await Conversation.findOne({ _id: convId, userId: user.id })
+      : await Conversation.create({ userId: user.id });
+    if (!conv) throw new Error("Conversation not found");
+
+    const conversationId = conv.id;
+
+    const connection = mongoose.connection;
+    const fileIds = (
+      await uploadFilesToGridFS(files, connection, bucketName)
+    ).map((id) => id.toString());
+
+    await Message.create({ conversationId, text, fileIds });
+    await conv.updateOne({ title: text, lastModified: Date.now() });
+
+    finalResponse.conversationId = conversationId;
+    finalResponse.fileIds = fileIds;
+  } catch (error) {
+    return finalResponse;
   }
 
-  const payload = (await response.json()) as ChatResponse;
+  try {
+    const endpoint = `${process.env.CHAT_SERVICE_BASE_URL}/api/v1/chat`;
+    const reqBody = JSON.stringify({
+      conversation_id: finalResponse.conversationId,
+      text,
+      file_ids: finalResponse.fileIds,
+      bucket_name: bucketName,
+    });
 
-  const resMessage = await Message.create({
-    conversationId: conv.id,
-    text: payload.text,
-    fileIds: payload.file_ids,
-  });
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: reqBody,
+    });
 
-  await conv.updateOne({
-    title: payload.text,
-    lastModified: Date.now(),
-  });
+    if (!response.ok) {
+      await conv.updateOne({ isError: true });
+      revalidatePath(`/chat/${finalResponse.conversationId}`);
+      return finalResponse;
+    }
 
-  revalidatePath(`/chat/${conversationId}`);
+    const payload = (await response.json()) as ChatResponse;
 
-  return {
-    id: resMessage.id,
-    type: "Response",
-    text: resMessage.text,
-    fileIds: resMessage.fileIds.map((id) => String(id)),
-  };
+    const resMessage = await Message.create({
+      conversationId: conv.id,
+      text: payload.text,
+      fileIds: payload.file_ids,
+    });
+
+    await conv.updateOne({
+      title: resMessage.text,
+      lastModified: Date.now(),
+    });
+
+    revalidatePath(`/chat/${finalResponse.conversationId}`);
+
+    finalResponse.message = {
+      id: resMessage.id,
+      type: "Response",
+      text: resMessage.text,
+      fileIds: resMessage.fileIds.map((id) => String(id)),
+    };
+  } catch (error) {
+    return finalResponse;
+  }
+
+  return finalResponse;
 }

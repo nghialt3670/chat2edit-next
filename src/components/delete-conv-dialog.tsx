@@ -32,10 +32,10 @@ export default function DeleteConvDialog({ id }: { id: string }) {
     startTransition(async () => {
       const isDeleted = await deleteConversation(id);
       if (isDeleted) {
-        if (pathname.endsWith(id)) router.push("/chat")
+        if (pathname.endsWith(id)) router.push("/chat");
         if (cancelButtonRef.current) cancelButtonRef.current.click();
       } else {
-        setIsError(true); 
+        setIsError(true);
       }
     });
   };
@@ -43,9 +43,7 @@ export default function DeleteConvDialog({ id }: { id: string }) {
   return (
     <AlertDialog>
       <AlertDialogTrigger>
-        <IconButton>
-          <Trash2 />
-        </IconButton>
+        <Trash2 />
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -67,7 +65,7 @@ export default function DeleteConvDialog({ id }: { id: string }) {
         <AlertDialogFooter>
           <AlertDialogCancel ref={cancelButtonRef}>Cancel</AlertDialogCancel>
           <Button onClick={handleDelete} disabled={isPending || isError}>
-            Delete
+            {isPending ? "Deleting..." : "Delete"}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

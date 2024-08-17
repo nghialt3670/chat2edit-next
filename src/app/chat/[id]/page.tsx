@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import connectToDatabase from "@/lib/mongo";
 import Conversation from "@/models/Conversation";
-import ChatBox from "@/components/chat-box";
+import MessageList from "@/components/message-list";
 
 export default async function ConversationPage({
   params,
@@ -34,5 +34,12 @@ export default async function ConversationPage({
     }),
   );
 
-  return <ChatBox messages={messages} />;
+  let status: "isError" | "isIdle" | "isResponding";
+  if (conv.isError) status = "isError";
+  else if (messages.length % 2 !== 0) status = "isResponding";
+  else status = "isIdle";
+
+  return (
+    <MessageList conversationId={id} status={status} messages={messages} />
+  );
 }

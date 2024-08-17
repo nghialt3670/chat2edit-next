@@ -9,18 +9,19 @@ import useFileStore from "@/stores/file-store";
 import FormFile from "./form-file-preview";
 import { IconButton } from "@mui/material";
 import useMessageFormStore from "@/stores/message-form-store";
+import useConvStore from "@/stores/conv-store";
+import sendMessage from "@/actions/sendMessage";
+import { useRouter } from "next/navigation";
 
-export default function MessageForm({
-  onSubmit,
-}: {
-  onSubmit: (message: Message) => void;
-}) {
+export default function MessageForm() {
   const [text, setText] = useState<string>("");
+  const { fileIds, setFileIds } = useMessageFormStore();
   const textInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const fileStore = useFileStore();
-  const { fileIds, setFileIds } = useMessageFormStore();
+  const convStore = useConvStore();
+  const router = useRouter();
 
   const handleFileInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files) return;
@@ -34,9 +35,43 @@ export default function MessageForm({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onSubmit({ id: crypto.randomUUID(), type: "Request", text, fileIds });
+
+    const reqMessage: Message = {
+      id: crypto.randomUUID(),
+      type: "Request",
+      text,
+      fileIds,
+    };
+
     setText("");
     setFileIds([]);
+
+    convStore.addMessage(reqMessage);
+    setTimeout(() => convStore.setStatus("isResponding"), 500);
+
+    const formData = new FormData();
+    if (convStore.id) formData.set("conversationId", convStore.id);
+    formData.set("text", reqMessage.text);
+    const files = fileStore.getFiles(reqMessage.fileIds);
+    files.forEach((file) => formData.set("files", file!));
+
+    const response = await sendMessage(formData);
+
+    if (response.conversationId) {
+      convStore.setId(response.conversationId);
+      router.push(`/chat/${response.conversationId}`)
+      // history.pushState({}, "", `/chat/${response.conversationId}`);
+    }
+
+    // if (response.fileIds)
+    //   fileStore.updateIds(reqMessage.fileIds, response.fileIds);
+
+    if (response.message) {
+      convStore.addMessage(response.message)
+      convStore.setStatus("isIdle")
+    } else {
+      convStore.setStatus("isError")
+    }
   };
 
   return (

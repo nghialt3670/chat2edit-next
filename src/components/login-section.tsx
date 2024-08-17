@@ -11,8 +11,10 @@ import { cn } from "@/lib/utils";
 import { ComponentProps, useEffect } from "react";
 import { readFileAsDataURL } from "@/utils/client/file";
 import useUserStore from "@/stores/user-store";
+import { usePathname } from "next/navigation";
 
 export default function LoginSection({ className }: ComponentProps<"section">) {
+  const pathname = usePathname();
   const user = useUser();
   const userStore = useUserStore();
 
@@ -39,17 +41,18 @@ export default function LoginSection({ className }: ComponentProps<"section">) {
   }, [user.isSignedIn]);
 
   const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+  const redirectURL = baseURL;
 
   return (
     <section className={cn("flex justify-center items-center", className)}>
       <SignedOut>
         <Stack direction="row">
-          <SignInButton mode="modal" fallbackRedirectUrl={baseURL}>
+          <SignInButton mode="modal" fallbackRedirectUrl={redirectURL}>
             <Button color="primary" sx={{ textWrap: "nowrap" }}>
               Log In
             </Button>
           </SignInButton>
-          <SignUpButton mode="modal" fallbackRedirectUrl={baseURL}>
+          <SignUpButton mode="modal" fallbackRedirectUrl={redirectURL}>
             <Button color="inherit" sx={{ textWrap: "nowrap" }}>
               Sign Up
             </Button>
@@ -57,7 +60,7 @@ export default function LoginSection({ className }: ComponentProps<"section">) {
         </Stack>
       </SignedOut>
       <SignedIn>
-        <UserButton afterSignOutUrl={baseURL} />
+        <UserButton afterSignOutUrl={redirectURL} />
       </SignedIn>
     </section>
   );

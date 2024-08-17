@@ -3,6 +3,7 @@ import { create } from "zustand";
 interface FileStore {
   idToFile: Record<string, File>;
   idToDataURL: Record<string, string>;
+  idUpdate: Record<string, string>;
   contains: (fileId: string) => boolean;
   addFile: (fileId: string, file: File) => void;
   addDataURL: (fileId: string, dataURL: string) => void;
@@ -20,6 +21,7 @@ interface FileStore {
 const useFileStore = create<FileStore>((set, get) => ({
   idToFile: {},
   idToDataURL: {},
+  idUpdate: {},
 
   contains: (fileId) => {
     const state = get();
@@ -83,34 +85,30 @@ const useFileStore = create<FileStore>((set, get) => ({
 
   updateIds: (oldIds, newIds) => {
     set((state) => {
-      // Ensure oldIds and newIds have the same length
       if (oldIds.length !== newIds.length) {
         throw new Error("oldIds and newIds must have the same length");
       }
 
-      // Create mappings for new files and data URLs
       const newIdToFile = { ...state.idToFile };
       const newIdToDataURL = { ...state.idToDataURL };
+      const newIdUpdate = { ...state.idUpdate };
 
-      // Update file mappings
       oldIds.forEach((oldId, index) => {
         const newId = newIds[index];
-        if (newId in newIdToFile) {
-          newIdToFile[newId] = newIdToFile[oldId];
-          delete newIdToFile[oldId];
-        }
+        newIdToFile[newId] = newIdToFile[oldId];
+        delete newIdToFile[oldId];
+
+        newIdToDataURL[newId] = newIdToDataURL[oldId];
+        delete newIdToDataURL[oldId];
+
+        newIdUpdate[oldId] = newId;
       });
 
-      // Update data URL mappings
-      oldIds.forEach((oldId, index) => {
-        const newId = newIds[index];
-        if (newId in newIdToDataURL) {
-          newIdToDataURL[newId] = newIdToDataURL[oldId];
-          delete newIdToDataURL[oldId];
-        }
-      });
-
-      return { idToFile: newIdToFile, idToDataURL: newIdToDataURL };
+      return {
+        idToFile: newIdToFile,
+        idToDataURL: newIdToDataURL,
+        idUpdate: newIdUpdate,
+      };
     });
   },
 }));

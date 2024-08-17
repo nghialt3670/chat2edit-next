@@ -1,7 +1,7 @@
 "use client";
 
-import ChatBox from "@/components/chat-box";
+import MessageList from "@/components/message-list";
 
 export default function ChatPage() {
-  return <ChatBox messages={[]} />;
+  return <MessageList conversationId={null} messages={[]} />;
 }

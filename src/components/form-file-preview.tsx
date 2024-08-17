@@ -32,9 +32,9 @@ export default function FormFilePreview({ fileId }: { fileId: string }) {
   };
 
   return (
-    <div className="relative">
+    <div className="relative size-fit">
       <IconButton
-        className="absolute right-0 top-0 z-10"
+        sx={{ position: "absolute", right: 0, top: 0, zIndex: 1 }}
         onClick={() => removeFileId(fileId)}
       >
         <XCircle />
