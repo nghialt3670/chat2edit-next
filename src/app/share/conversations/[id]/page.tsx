@@ -34,5 +34,5 @@ export default async function SharedConversationPage({
     fileIds: msg.fileIds.map((id) => String(id)),
   }));
 
-  return <MessageList status="Idle" messages={messages} />;
+  return <MessageList conversationId={conv.id} status="isIdle" messages={messages} />;
 }
