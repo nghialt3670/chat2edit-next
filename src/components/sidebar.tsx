@@ -10,7 +10,7 @@ export default function Sidebar({ children }: { children: ReactNode }) {
 
   return (
     <aside
-      className={`absolute ${opened ? "left-0" : "-left-72"} w-72 h-[calc(100vh-3.5rem)] flex flex-row transition-width duration-300 ease-in-out z-50 bg-sidebar`}
+      className={`absolute ${opened ? "left-0" : "-left-60"} w-60 h-[calc(100vh-3.5rem)] flex flex-row transition-width duration-300 ease-in-out z-50 bg-sidebar`}
     >
       <div className="flex flex-col w-full">
         {children}

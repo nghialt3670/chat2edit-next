@@ -73,6 +73,7 @@ export default async function sendMessage(
       bucket_name: bucketName,
     });
 
+    console.log("start")
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
@@ -80,6 +81,7 @@ export default async function sendMessage(
       },
       body: reqBody,
     });
+    console.log("end")
 
     if (!response.ok) {
       await conv.updateOne({ isError: true });

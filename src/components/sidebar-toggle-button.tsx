@@ -1,8 +1,8 @@
 import { Menu, Sidebar } from "lucide-react";
 
 import useSidebarStore from "@/stores/sidebar-store";
-import { IconButton } from "@mui/material";
 import { ComponentProps } from "react";
+import IconButton from "./icon-button";
 
 export default function SidebarToggleButton({
   className,

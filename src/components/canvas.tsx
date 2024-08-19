@@ -20,7 +20,7 @@ export default function Canvas({ fileId }: { fileId?: string }) {
   const [file, setFile] = useState<File>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const canvasWidth = 1200
+  const canvasWidth = 800
   const canvasHeight = 600
 
   // useEffect(() => {
@@ -122,7 +122,7 @@ export default function Canvas({ fileId }: { fileId?: string }) {
 
   return (
     <div className="flex flex-col">
-      <div>
+      {/* <div>
         <input
           type="file"
           accept="image/*"
@@ -136,7 +136,7 @@ export default function Canvas({ fileId }: { fileId?: string }) {
         <IconButton onClick={handleDownloadClick}>
           <Download />
         </IconButton>
-      </div>
+      </div> */}
 
       <canvas className="w-40 h-40" ref={canvasElementRef}>
         {isLoading && <CircularProgress disableShrink />}
