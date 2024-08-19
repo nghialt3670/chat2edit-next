@@ -67,6 +67,7 @@ export default function FilePreview({
           let dataURL = canvas.toDataURL();
           fileStore.addDataURL(fileId, dataURL);
           setImgSrc(dataURL);
+          setStatus("isLoaded")
           return;
         }
       }
