@@ -63,7 +63,7 @@ export default function BotMessage({
   return (
     <li className="flex flex-row w-5/6 max-w-2xl md:ml-3.5 min-w-64 my-5">
       <BotMessageSquare className="size-7" />
-      <div className="w-fit ml-4 mt-0.5">{renderContent()}</div>
+      <div className="w-full ml-4 mt-0.5">{renderContent()}</div>
     </li>
   );
 }
