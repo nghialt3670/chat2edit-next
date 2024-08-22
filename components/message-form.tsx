@@ -2,17 +2,17 @@
 
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
 
+import { nanoid } from "nanoid";
 import { Send, Upload } from "lucide-react";
 
 import Message from "@/types/Message";
+import FormFile from "@/components/form-file";
+import { usePathname } from "next/navigation";
 import useFileStore from "@/stores/file-store";
-import FormFile from "./form-file";
-import useMessageFormStore from "@/stores/message-form-store";
 import useChatStore from "@/stores/chat-store";
 import sendMessage from "@/actions/sendMessage";
 import { Button } from "@/components/ui/button";
-import { nanoid } from "nanoid";
-import { usePathname } from "next/navigation";
+import useMessageFormStore from "@/stores/message-form-store";
 
 export default function MessageForm() {
   const [text, setText] = useState<string>("");
