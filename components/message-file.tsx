@@ -4,7 +4,7 @@ import { ComponentProps, useEffect, useState } from "react";
 
 import { Download, Edit, Reply } from "lucide-react";
 
-import getFile from "@/api/getFile";
+import getFile from "@/utils/api/getFile";
 import { IconButton } from "@mui/material";
 import { useRouter } from "next/navigation";
 import useFileStore from "@/stores/file-store";
