@@ -1,18 +1,23 @@
-"use server";
-
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import ChatResponse from "@/types/ChatResponse";
 import ResponseMessage from "@/types/ResponseMessage";
+import { NextRequest, NextResponse } from "next/server";
 import { GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME } from "@/config/db";
 
-export default async function resendMessage(
-  chatId: string,
-): Promise<ResponseMessage | null> {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { chatId: string } },
+) {
   try {
+    const { chatId } = params;
+
+    if (!chatId) throw new Error("chatId is required");
+
     const session = await auth();
-    if (!session?.user?.id) throw new Error("Unauthenticated");
+    if (!session?.user?.id)
+      return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
 
     const chat = await prisma.chat.findFirstOrThrow({
       where: { id: chatId, userId: session.user.id },
@@ -24,6 +29,7 @@ export default async function resendMessage(
     const reqMessage = await prisma.message.findFirstOrThrow({
       where: { id: chat.lastMessageId },
     });
+
     const bucketName = GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME;
     const endpoint = `${process.env.CHAT_SERVICE_BASE_URL}/api/v1/chat`;
     const reqBody = JSON.stringify({
@@ -61,14 +67,17 @@ export default async function resendMessage(
       },
     });
 
-    return {
+    revalidatePath("/chat");
+
+    return NextResponse.json({
       text: payload.text,
       fileIds: payload.file_ids,
-    };
+    } as ResponseMessage);
   } catch (error) {
     console.error(error instanceof Error ? error.message : error);
-    return null;
-  } finally {
-    revalidatePath("/chat");
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500 },
+    );
   }
 }

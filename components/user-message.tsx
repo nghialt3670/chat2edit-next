@@ -18,9 +18,7 @@ export default function UserMessage({
         <span className="">
           {status && (status === "sending" ? "Sending" : "Error")}
         </span>
-        <ReactMarkdown
-          className={"w-fit ml-auto rounded-full py-2 px-4 bg-accent"}
-        >
+        <ReactMarkdown className="w-fit ml-auto rounded-xl py-2 px-3 bg-accent">
           {message.text}
         </ReactMarkdown>
         {message.fileIds.length !== 0 && (

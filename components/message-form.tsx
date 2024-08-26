@@ -10,9 +10,10 @@ import FormFile from "@/components/form-file";
 import { usePathname } from "next/navigation";
 import useFileStore from "@/stores/file-store";
 import useChatStore from "@/stores/chat-store";
-import sendMessage from "@/actions/sendMessage";
 import { Button } from "@/components/ui/button";
 import useMessageFormStore from "@/stores/message-form-store";
+import useChatHistoryStore from "@/stores/chat-history-store";
+import SendMessageResponse from "@/types/SendMessageResponse";
 
 export default function MessageForm() {
   const [text, setText] = useState<string>("");
@@ -20,6 +21,7 @@ export default function MessageForm() {
   const textInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const chatHistoryStore = useChatHistoryStore();
   const fileStore = useFileStore();
   const chatStore = useChatStore();
   const pathname = usePathname();
@@ -58,27 +60,50 @@ export default function MessageForm() {
     const files = fileStore.getFiles(reqMessage.fileIds);
     files.forEach((file) => formData.append("files", file!));
 
-    const response = await sendMessage(formData);
+    try {
+      const response = await fetch(`/api/chat/send-message`, {
+        method: "POST",
+        body: formData,
+      });
+  
+      if (!response.ok) throw new Error("Error while sending message")
+  
+      const { newChatId, savedRequestMessage, responseMessage } =
+        (await response.json()) as SendMessageResponse;
+  
+      if (newChatId) {
+        chatHistoryStore.addChat({
+          id: newChatId,
+          title: "",
+          updatedAt: new Date(),
+        });
+        history.pushState({}, "", `/chat/${newChatId}`);
+      }
+  
+      if (!savedRequestMessage) throw new Error("Error while sending message")
+  
+      const chatId = newChatId ?? pathname.split("/").pop()!;
+  
+      if (!responseMessage) {
+        chatStore.setStatus("response_error");
+        chatHistoryStore.updateTitle(chatId, reqMessage.text);
+        return;
+      }
 
-    if (response.newChatId)
-      history.pushState({}, "", `/chat/${response.newChatId}`);
-
-    if (!response.savedRequestMessage) {
-      chatStore.setStatus("request_error");
-      return;
+      const resMessage: Message = {
+        id: nanoid(),
+        text: responseMessage.text,
+        fileIds: responseMessage.fileIds,
+      };
+  
+      chatHistoryStore.updateTitle(chatId, resMessage.text);
+      chatStore.addMessage(resMessage);
+      chatStore.setStatus("idle");
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : error);
+      chatStore.setStatus("request_error")
     }
 
-    if (!response.responseMessage) {
-      chatStore.setStatus("response_error");
-      return;
-    }
-
-    chatStore.addMessage({
-      id: nanoid(),
-      text: response.responseMessage.text,
-      fileIds: response.responseMessage.fileIds,
-    });
-    chatStore.setStatus("idle");
   };
 
   return (

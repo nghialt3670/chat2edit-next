@@ -5,9 +5,6 @@ import { useEffect, useState, useTransition } from "react";
 import { AlertCircle, Forward, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import getChatShareId from "@/actions/getChatShareId";
-import createChatShareId from "@/actions/createChatShareId";
-import delelteChatShareId from "@/actions/deleteChatShareId";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -20,7 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-export default function ShareChat({ id }: { id: string }) {
+export default function ShareChat({ chatId }: { chatId: string }) {
   const [shareLink, setShareLink] = useState<string>();
   const [isCopied, setIsCopied] = useState<boolean>();
   const [isCreateError, setIsCreateError] = useState<boolean>();
@@ -31,12 +28,18 @@ export default function ShareChat({ id }: { id: string }) {
   useEffect(() => {
     const updateShareLink = async () => {
       if (shareLink) return;
-      const shareId = await getChatShareId(id);
-      if (!shareId) return;
-      setShareLink(`${window.location.origin}/share/chat/${shareId}`);
+      try {
+        const response = await fetch(`/api/chat/${chatId}/shareId`)
+        if (!response.ok) return;
+        const shareId = await response.json();
+        if (!shareId) return;
+        setShareLink(`${window.location.origin}/share/chat/${shareId}`);
+      } catch (error) {
+        console.error(error instanceof Error ? error.message : error);
+      }
     };
     updateShareLink();
-  }, [id]);
+  }, [chatId]);
 
   const handleCopyClick = async () => {
     if (!shareLink) return;
@@ -46,19 +49,28 @@ export default function ShareChat({ id }: { id: string }) {
 
   const handleCreateClick = async () => {
     startCreating(async () => {
-      const shareId = await createChatShareId(id);
-      if (!shareId) {
+      try {
+        const response = await fetch(`/api/chat/${chatId}/shareId`, { method: "POST" })
+        if (!response.ok) throw new Error("Error while creating share ID") 
+        const { shareId } = await response.json();
+        setShareLink(`${window.location.origin}/share/chat/${shareId}`);
+      } catch (error) {
+        console.error(error instanceof Error ? error.message : error);
         setIsCreateError(true);
-        return;
       }
-      setShareLink(`${window.location.origin}/share/chat/${shareId}`);
     });
   };
 
   const handleDeleteClick = async () => {
     startDeleting(async () => {
-      if (await delelteChatShareId(id)) setShareLink(undefined);
-      else setIsDeleteError(true);
+      try {
+        const response = await fetch(`/api/chat/${chatId}/shareId`, { method: "POST" })
+        if (!response.ok) throw new Error("Error while deleting share ID");
+        setShareLink(undefined);
+      } catch (error) {
+        console.error(error instanceof Error ? error.message : error);
+        setIsDeleteError(true);
+      }
     });
   };
 

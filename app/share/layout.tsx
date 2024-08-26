@@ -12,7 +12,7 @@ export default function SharedChatLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <main className="size-full">
+    <main className="flex flex-row size-full">
       <HomeSidebar />
       {children}
     </main>

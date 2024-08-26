@@ -36,5 +36,5 @@ export default async function SharedChatPage({
     fileIds: msg.fileIds,
   }));
 
-  return <MessageList chatId={params.id} messages={messages} />;
+  return <MessageList messages={messages} />;
 }

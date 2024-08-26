@@ -9,7 +9,7 @@ import SidebarNavigate from "@/components/sidebar-navigate";
 export default function EditSidebar() {
   return (
     <Sidebar>
-      <nav className="m-2">
+      <nav>
         <SidebarNavigate
           path="/"
           icon={<Home strokeWidth={2} size={20} />}

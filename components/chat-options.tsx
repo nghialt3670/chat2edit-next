@@ -16,8 +16,8 @@ import {
 
 export default function ChatOptions({
   className,
-  id,
-}: ComponentProps<"button"> & { id: string }) {
+  chatId,
+}: ComponentProps<"button"> & { chatId: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -25,18 +25,18 @@ export default function ChatOptions({
           <Ellipsis />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-40 mr-4">
+      <DropdownMenuContent className="w-32 mr-4">
         <DropdownMenuItem
           className="hover:cursor-pointer"
           onSelect={(e) => e.preventDefault()}
         >
-          <DeleteChat id={id} />
+          <DeleteChat chatId={chatId} />
         </DropdownMenuItem>
         <DropdownMenuItem
           className="hover:cursor-pointer"
           onSelect={(e) => e.preventDefault()}
         >
-          <ShareChat id={id} />
+          <ShareChat chatId={chatId} />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -18,7 +18,7 @@ export default function SidebarNavigate({
   return (
     <Link href={path} className={className}>
       <Button
-        className="w-full flex flex-row p-2 space-x-2 items-center justify-start rounded"
+        className="w-full flex flex-row p-2 space-x-2 items-center justify-start rounded-md"
         variant={"ghost"}
       >
         {icon}

@@ -6,7 +6,6 @@ import { AlertCircle, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
-import deletechat from "@/actions/deleteChat";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -18,19 +17,22 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import useChatHistoryStore from "@/stores/chat-history-store";
 
-export default function DeleteChat({ id }: { id: string }) {
+export default function DeleteChat({ chatId }: { chatId: string }) {
   const [isPending, startTransition] = useTransition();
   const [isError, setIsError] = useState<boolean>(false);
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
+  const chatHistoryStore = useChatHistoryStore();
   const pathname = usePathname();
   const router = useRouter();
 
   const handleDelete = async () => {
     startTransition(async () => {
-      const isDeleted = await deletechat(id);
-      if (isDeleted) {
-        if (pathname.endsWith(id)) router.push("/chat");
+      const response = await fetch(`/api/chat/${chatId}`, { method: "DELETE" });
+      if (response.ok) {
+        chatHistoryStore.removeChat(chatId);
+        if (pathname.endsWith(chatId)) router.push("/chat");
         if (cancelButtonRef.current) cancelButtonRef.current.click();
       } else {
         setIsError(true);

@@ -8,25 +8,16 @@ import Message from "@/types/Message";
 import useChatStore from "@/stores/chat-store";
 import BotMessage from "@/components/bot-message";
 import UserMessage from "@/components/user-message";
-import { usePathname } from "next/navigation";
 
-export default function MessageList({
-  chatId,
-  messages,
-}: {
-  chatId: string | null;
-  messages: Message[];
-}) {
+export default function MessageList({ messages }: { messages: Message[] }) {
   const ref = useRef<HTMLUListElement>(null);
   const chatStore = useChatStore();
 
+  
   useEffect(() => {
-    if (chatId !== chatStore.id) {
-      chatStore.setMessages(messages);
-      chatStore.setId(chatId);
-      if (messages.length % 2 !== 0) chatStore.setStatus("response_error");
-      else chatStore.setStatus("idle");
-    }
+    chatStore.setMessages(messages);
+    if (messages.length % 2 !== 0) chatStore.setStatus("response_error");
+    else chatStore.setStatus("idle");
   }, [messages]);
 
   if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;

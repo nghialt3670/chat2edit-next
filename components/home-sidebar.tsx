@@ -8,7 +8,7 @@ import SidebarNavigate from "@/components/sidebar-navigate";
 export default function HomeSidebar() {
   return (
     <Sidebar>
-      <nav className="p-2">
+      <nav>
         <SidebarNavigate
           path="/chat"
           icon={<BotMessageSquare strokeWidth={2} size={20} />}

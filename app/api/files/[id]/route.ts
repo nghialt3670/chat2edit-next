@@ -45,9 +45,9 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("Error fetching file:", error);
+    console.error(error instanceof Error ? error.message : error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 },
     );
   }

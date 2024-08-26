@@ -32,5 +32,5 @@ export default async function ChatPage({ params }: { params: { id: string } }) {
     fileIds: msg.fileIds,
   }));
 
-  return <MessageList chatId={params.id} messages={messages} />;
+  return <MessageList messages={messages} />;
 }

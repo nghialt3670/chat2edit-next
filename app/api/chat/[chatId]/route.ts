@@ -1,20 +1,23 @@
-"use server";
-
 import mongoose from "mongoose";
 
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import connectToDatabase from "@/lib/mongo";
-import { revalidatePath } from "next/cache";
 import { deleteFilesFromGridFS } from "@/lib/gridfs";
+import { NextRequest, NextResponse } from "next/server";
 import { GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME } from "@/config/db";
 
-export default async function deletechat(chatId: string) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { chatId: string } },
+) {
   try {
     await connectToDatabase();
 
+    const { chatId } = params;
+
     const session = await auth();
-    if (!session?.user?.id) throw new Error("Unauthenticated");
+    if (!session?.user?.id) return NextResponse.json({ status: 401 });
 
     const messages = await prisma.message.findMany({
       where: { chatId },
@@ -37,10 +40,12 @@ export default async function deletechat(chatId: string) {
       console.error(error instanceof Error ? error.message : error);
     }
 
-    revalidatePath("/chat");
-    return true;
+    return NextResponse.json({});
   } catch (error) {
     console.error(error instanceof Error ? error.message : error);
-    return false;
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500 },
+    );
   }
 }

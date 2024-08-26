@@ -10,7 +10,6 @@ import { signIn, useSession } from "next-auth/react";
 
 export default function LogInSection({ className }: ComponentProps<"section">) {
   const { data: session, status } = useSession();
-  const [isPending, startTransition] = useTransition();
 
   const renderContent = () => {
     switch (status) {
@@ -23,8 +22,7 @@ export default function LogInSection({ className }: ComponentProps<"section">) {
           <Button
             className="h-8"
             size={"sm"}
-            disabled={isPending}
-            onClick={() => startTransition(async () => await signIn())}
+            onClick={async () => await signIn()}
           >
             Log In
           </Button>

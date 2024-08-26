@@ -1,20 +1,16 @@
-"use server";
-
 import mongoose from "mongoose";
-import { nanoid } from "nanoid";
 
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import connectToDatabase from "@/lib/mongo";
 import ChatResponse from "@/types/ChatResponse";
 import { uploadFilesToGridFS } from "@/lib/gridfs";
+import { NextRequest, NextResponse } from "next/server";
 import SendMessageResponse from "@/types/SendMessageResponse";
 import { GRIDFS_FOR_MESSAGE_FILES_BUCKET_NAME } from "@/config/db";
-import { revalidatePath } from "next/cache";
 
-export default async function sendMessage(
-  formData: FormData,
-): Promise<SendMessageResponse> {
+export async function POST(req: NextRequest) {
+  const formData = await req.formData();
   const chatId = formData.get("chatId") as string | undefined;
   const text = formData.get("text") as string;
   const files = (formData.getAll("files") as File[]) || [];
@@ -28,7 +24,7 @@ export default async function sendMessage(
     if (!text) throw new Error("Message's text field is required");
 
     const session = await auth();
-    if (!session?.user?.id) throw new Error("Unauthenticated");
+    if (!session?.user?.id) return NextResponse.json({ status: 401 });
 
     let chat;
     if (chatId) {
@@ -43,7 +39,9 @@ export default async function sendMessage(
     }
 
     if (chat.isError)
-      throw new Error("Can not send new message before resolve current error");
+      throw new Error(
+        "Cannot send a new message before resolving the current chat error",
+      );
 
     const connection = mongoose.connection;
     const fileObjIds = await uploadFilesToGridFS(files, connection, bucketName);
@@ -90,7 +88,6 @@ export default async function sendMessage(
   } catch (error) {
     console.error(error instanceof Error ? error.message : error);
   } finally {
-    revalidatePath("/chat");
-    return response;
+    return NextResponse.json(response);
   }
 }
