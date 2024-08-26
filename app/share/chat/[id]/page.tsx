@@ -14,14 +14,9 @@ export default async function SharedChatPage({
   const session = await auth();
   if (!session?.user?.id) notFound();
 
-  const user = await prisma.user.findFirstOrThrow({
-    where: { id: session.user.id },
-  });
-
   const chat = await prisma.chat.findFirst({
     where: {
       shareId: params.id,
-      userId: user.id,
     },
     include: {
       messages: true,
